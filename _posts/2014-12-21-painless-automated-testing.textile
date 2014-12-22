@@ -5,11 +5,11 @@ permalink: /painless-automated-testing/
 ---
 I'm guessing that you don't like testing. Fortunately, we can make testing a lot easier to do by writing a script to do it for us. In this post, you'll learn how to write a simple shell script which will run your program with input and compare it against the expected output.
 
-This page looks long, but it's mostly sections with one paragraph each. Just follow the instructions step-by-step and you'll be set.
+This post looks long, but it's mostly sections with one paragraph each. Just follow the instructions step-by-step and you'll be set.
 
 <aside class="aside-warning">
 
-In the interest of brevity, this document doesn't touch upon best practices for shell scripting.
+In the interest of brevity, this document doesn't touch upon best practices for shell scripting. Everything described here works just fine, but there are a lot of hidden pitfalls when it comes to shell scripting. Consult a style guide before trying to write your next operating system in @bash@.
 
 </aside>
 
@@ -19,7 +19,7 @@ When you log into CAEN over SSH, you're presented with a prompt where you can ty
 
 <aside class="aside-info">
 
-The shell we use on CAEN is called @bash@, but it's not the only shell out there. There are many others, like @zsh@, @csh@, @ksh@... The shell script we're writing should work in any of these. (One exception is the @fish@ shell, but it's not installed on CAEN by default, anyways.)
+The shell we use on CAEN is called @bash@, but it's not the only shell out there. There are many others, like @zsh@, @csh@, @ksh@... Feel free to try another one — a lot of people recommend @zsh@.
 
 </aside>
 
@@ -48,7 +48,7 @@ Make sure _not_ to type the @$@ at the beginning of each line. We use lines begi
 
 h1. Example test files
 
-For the sake of example, let's say we have a program @adder@ which adds up all the numbers given to it on standard input and prints the result to standard output. (This means it reads from @cin@ and writes to @cout@). 
+For the sake of example, let's say we have a program @adder@ which adds up all the numbers given to it on standard input and prints the result to standard output. (This means it reads from @cin@ and writes to @cout@.)
 
 Let's write the first test. Create @test-1.input@ with the following contents:
 
@@ -69,11 +69,17 @@ for test in ./test-*.input; do
 done
 {% endhighlight %}
 
-As you can see, we have a @for@-loop here. But what's this @./test-*.input@?  This is called a _glob_ pattern. It matches all of the files in the current directory which start with @test-@ and end with @.input@. For each such file, it puts the file name in the @$test@ variable and runs the @for@-loop body. Basically, we're iterating over a list of file names matching the glob pattern.
+As you can see, we have a @for@-loop here. But what's this @./test-*.input@?  This is a type of pattern-matching statement called a _glob_. It matches all of the files in the current directory which start with @test-@ and end with @.input@. For each such file, it puts the file name in the @$test@ variable and runs the @for@-loop body. Basically, we're iterating over a list of file names matching the glob pattern.
 
 <aside class="aside-warning">
 
-@bash@ is silly. If there aren't actually any files matching the pattern, instead of not running your loop at all, it will run it with the literal string @./test-*.input@. Since you probably don't have any files like that in your current directory, this will be an error.
+If you're familiar with regular expressions, you may recognize the @*@ character. However, @*@ does a different thing when globbing: it's basically equivalent to the regex @.*@.
+
+</aside>
+
+<aside class="aside-warning">
+
+@bash@ is silly: if there aren't actually any files matching the pattern, instead of not running your loop at all, it will run it with the literal string @./test-*.input@. Since you probably don't have any files like that in your current directory, this will be an error.
 
 Either make sure to have the files in place, or add the line @shopt -s nullglob@ to the beginning of your script.
 
@@ -169,7 +175,9 @@ Finally, we just need to check the return value of @diff@ to see if the files we
 
 <aside class="aside-info">
 
-You'll notice that this is the opposite of what we usually expect from boolean logic. Normally, a value of zero means @false@, but here zero means success. It's more convenient to use zero to mean success and non-zero to mean failure because there are multiple reasons a program could fail but usually only one way that it could succeed.
+You'll notice that this is the opposite of what we usually expect from boolean logic. Normally, a value of zero means @false@, but here zero means success.
+
+Why use zero for success and non-zero for failure? It's more convenient for us scripters. There's usually only one way a program can successfully run, but many ways it can fail. If we want to know why exactly a program failed, we can just check the exit code.
 
 </aside>
 
@@ -193,7 +201,7 @@ That's it! We have our automated test runner in ten lines of code. If we run @ba
 
 h1. Adding automatic test-running to our Makefile
 
-Now that we've written our test runner, we can do a few nifty things with it. First off, let's make it so that if we run @make test@, our tests will be run. Add these lines to your Makefile:
+Now that we've written our test runner, we can do a few nifty things with it. First off, let's make it so that if we run @make test@, our tests will be run. Add these lines to your @Makefile@:
 
 {% highlight make %}
 test: all
@@ -206,7 +214,7 @@ Remember that in a @Makefile@, you must use tabs for indentation. Otherwise @mak
 
 </aside>
 
-Now if we run @make test@, we'll get output either like this:
+Now if we run @make test@, we'll either get output like this:
 
 {% highlight sh %}
 $ make test
@@ -242,3 +250,9 @@ submit: test submit.tar.gz
 {% endhighlight %}
 
 Now if you try to run @make submit@ and your tests fail, @make@ will refuse to build your submission file and let you know.
+
+h1. If you get stuck...
+
+Shell scripting can have some really hard-to-diagnose errors, especially if you're not experienced in it. If you get stuck, make a new post on Piazza, or just email me!
+
+If you're writing a significantly-sized shell script and are having trouble with it, consider enabling the so-called "bash strict mode":http://redsymbol.net/articles/unofficial-bash-strict-mode/. This might cause your error to trigger earlier so you can figure out what went wrong.
