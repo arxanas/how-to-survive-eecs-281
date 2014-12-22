@@ -1,0 +1,29 @@
+aside {
+    background-color: lighten($grey-color-light, 3%);
+    padding: $spacing-unit / 2;
+    margin-bottom: 15px;
+
+    p {
+        margin-bottom: 0px;
+    }
+
+    &::before {
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+
+    &.aside-info::before {
+        content: "In case you were curious...";
+    }
+
+    &.aside-warning::before {
+        content: "Heads up!";
+    }
+}
+
+.post-content {
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: $spacing-unit;
+        border-bottom: solid $grey-color-light 1px;
+    }
+}
