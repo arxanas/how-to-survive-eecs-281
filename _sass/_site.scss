@@ -12,12 +12,20 @@ aside {
         margin-bottom: 3px;
     }
 
-    &.aside-info::before {
-        content: "In case you were curious...";
+    &.aside-info {
+        background-color: lighten(green, 65%);
+
+        &::before {
+            content: "In case you were curious...";
+        }
     }
 
-    &.aside-warning::before {
-        content: "Heads up!";
+    &.aside-warning {
+        background-color: lighten(orange, 40%);
+
+        &::before {
+            content: "Heads up!";
+        }
     }
 }
 
