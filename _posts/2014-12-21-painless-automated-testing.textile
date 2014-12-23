@@ -19,7 +19,7 @@ When you log into CAEN over SSH, you're presented with a prompt where you can ty
 
 <aside class="aside-info">
 
-The shell we use on CAEN is called @bash@, but it's not the only shell out there. There are many others, like @zsh@, @csh@, @ksh@... Feel free to try another one — a lot of people recommend @zsh@.
+The shell we use on CAEN is called @bash@, but it's not the only shell out there. There are many others, like @zsh@, @csh@, @ksh@... Feel free to try another one -- a lot of people recommend @zsh@.
 
 </aside>
 
