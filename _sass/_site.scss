@@ -1,19 +1,21 @@
+$aside-info-color: lighten(green, 65%);
+$aside-warning-color: lighten(orange, 40%);
+
 aside {
     background-color: lighten($grey-color-light, 3%);
     padding: $spacing-unit / 2;
     margin-bottom: 15px;
 
-    p {
+    :last-child {
         margin-bottom: 0px;
     }
 
     &::before {
         font-weight: bold;
-        margin-bottom: 3px;
     }
 
     &.aside-info {
-        background-color: lighten(green, 65%);
+        background-color: $aside-info-color;
 
         &::before {
             content: "In case you were curious...";
@@ -21,7 +23,7 @@ aside {
     }
 
     &.aside-warning {
-        background-color: lighten(orange, 40%);
+        background-color: $aside-warning-color;
 
         &::before {
             content: "Heads up!";
