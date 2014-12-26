@@ -1,5 +1,11 @@
 $aside-info-color: lighten(green, 65%);
 $aside-warning-color: lighten(orange, 40%);
+$aside-tip-color: lighten(purple, 65%);
+
+// TODO: use some desaturation function instead of darken.
+$aside-info-header-color: darken($aside-info-color, 70%);
+$aside-warning-header-color: darken($aside-warning-color, 65%);
+$aside-tip-header-color: darken($aside-tip-color, 55%);
 
 aside {
     background-color: lighten($grey-color-light, 3%);
@@ -19,6 +25,7 @@ aside {
 
         &::before {
             content: "In case you were curious...";
+            color: $aside-info-header-color;
         }
     }
 
@@ -27,6 +34,16 @@ aside {
 
         &::before {
             content: "Heads up!";
+            color: $aside-warning-header-color;
+        }
+    }
+
+    &.aside-tip {
+        background-color: $aside-tip-color;
+
+        &::before {
+            content: "Pro tip";
+            color: $aside-tip-header-color;
         }
     }
 }
