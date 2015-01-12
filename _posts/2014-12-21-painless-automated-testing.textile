@@ -155,6 +155,12 @@ for test in ./test-*.input; do
 done
 {% endhighlight %}
 
+<aside class="aside-info">
+
+You may notice that we've put @$test@ into quotes. If @$test@, for example, contained spaces, @bash@ might think that they're additional command line parameters or something else silly. For robustness and security, you should always quote variables when using them in @bash@.
+
+</aside>
+
 We're using the input redirection operator @<@ here to feed the contents of the input test file to our @adder@ program. But as it is, this just prints the result to the screen. We want to feed it to the @diff@ program, along with the correct output, to tell us if the files were identical.
 
 To hook together our program and @diff@, we can use a _pipeline_. This will redirect the standard output of @adder@ to the standard input of @diff@. To use a pipeline for @cmd1@ and @cmd2@, we join the two with the @|@ operator to get @cmd1 | cmd2@:
@@ -172,7 +178,7 @@ You'll notice that we have the file @-@ as one of the parameters to diff. This i
 
 h1. Checking to see if the test passed
 
-Finally, we just need to check the return value of @diff@ to see if the files were identical. Whenever a command is run, the exit code is stored into the special variable @$?@. If @$?@ is zero, then it means the command executed successfully; if it is non-zero, it means that the command failed. For @diff@, if we get an exit code of zero, then the files were identical, and we passed the test case.
+Finally, we just need to check the return value of @diff@ to see if the files were identical. We can use <code>bash</code>'s @if@-statement to determine if a command succeeded or not. If the command has an exit code of zero, the @if@ statement considers it a success and goes into the @if@-branch; otherwise, it goes into the @else@-branch (if there is one).
 
 <aside class="aside-info">
 
@@ -182,14 +188,13 @@ Why use zero for success and non-zero for failure? It's more convenient for us s
 
 </aside>
 
-We'll just add an @if@ statement that checks to see if the exit code was zero:
+We'll just move the command into the condition of an @if@ statement:
 
 {% highlight sh %}
 for test in ./test-*.input; do
     test_output="${test%.input}.output"
 
-    ./adder <"$test" | diff - "$test_output"
-    if [ "$?" = "0" ]; then
+    if ./adder <"$test" | diff - "$test_output"; then
         echo "Test $test passed!"
     else
         echo "Test $test failed..."
