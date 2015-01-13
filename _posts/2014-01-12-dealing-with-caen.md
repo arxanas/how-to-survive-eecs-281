@@ -32,6 +32,13 @@ your uniqname):
 This sets up a new alias, so now you can type `ssh caen` instead to log into
 CAEN.
 
+<aside class="aside-warning"><p>
+
+<code>~/.ssh/config</code> may not exist, especially if you've never used it
+before. You'll have to create it in that case.
+
+</p></aside>
+
 # Uploading files to CAEN
 
 You can use the `scp` command (secure copy) to copy files to and from CAEN.
