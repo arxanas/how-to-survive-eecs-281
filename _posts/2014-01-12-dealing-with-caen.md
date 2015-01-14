@@ -104,7 +104,9 @@ OS X users:
  1. Ensure you have Homebrew installed. You can get it from
     [brew.sh](http://brew.sh).
 
- 2. Install `osxfuse` by running this command in your terminal: `brew install
+ 2. Make sure Homebrew is up-to-date. Run `brew update` in your terminal.
+
+ 3. Install `osxfuse` by running this command in your terminal: `brew install
     osxfuse`.  Homebrew should install it for you and give you output like
 this:
 
@@ -115,7 +117,7 @@ this:
 
     Copy each of the two commands which were outputted in your terminal and run
 them.
- 3. Install `sshfs` by running `brew install sshfs`.
+ 4. Install `sshfs` by running `brew install sshfs`.
 
 Now you can use `sshfs`. Open up the terminal and navigate to the place where
 you want to make the virtual folder show up. For example:
