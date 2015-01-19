@@ -115,9 +115,10 @@ this:
           sudo /bin/cp -RfX something...
           sudo chmod +s something...
 
-    Copy each of the two commands which were outputted in your terminal and run
-them.
- 4. Install `sshfs` by running `brew install sshfs`.
+ 4. The output from `brew` contained two commands, as seen above. Copy and paste
+    them each of them into your terminal and run them.
+
+ 5. Install `sshfs` by running `brew install sshfs`.
 
 Now you can use `sshfs`. Open up the terminal and navigate to the place where
 you want to make the virtual folder show up. For example:
@@ -161,11 +162,16 @@ That does not say "unmount". Read it again.
 
 </p></aside>
 
-Caveats:
+# Caveats
 
-  * If you lose internet connectivity, you'll be disconnected from CAEN.
-    Unfortunately, this includes putting your laptop to sleep. To reconnect,
-you'll have to run `umount` and `sshfs` again.
-  * Object files and executables compiled on CAEN probably won't work on your
-    local computer, and vice-versa. If you get weird errors about linking, try
-running `make clean` and then recompiling.
+<aside class="aside-critical"><ul>
+
+<li>If you lose internet connectivity, you'll be disconnected from CAEN.
+Unfortunately, this includes putting your laptop to sleep. To reconnect, you'll
+have to run <code>umount</code> and <code>sshfs</code> again.</li>
+
+<li>Object files and executables compiled on CAEN probably won't work on your
+local computer, and vice-versa. If you get weird errors about linking, try
+running <code>make clean</code> and then recompiling.</li>
+
+</ul></aside>
