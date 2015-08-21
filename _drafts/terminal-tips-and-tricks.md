@@ -17,25 +17,22 @@ prompt*.
 
 <aside class="aside-info">
 
-<p>Strictly speaking, <i>terminal</i> isn't synonymous with <i>shell</i>.
+<p>Strictly speaking, <em>terminal</em> isn't synonymous with <em>shell</em>.
 "Terminal" is actually short for "terminal emulator", a piece of software which
 draws all of the characters on your screen, handles escape sequences, and so on.
 It's an emulator because it mimics the old machines which used to do all this,
 such as the VT100. So you use a terminal emulator to interact with your
 shell.</p>
 
-<p>In practice, nobody cares.</p>
-
 </aside>
 
 The default shell on CAEN is `bash`. In fact, it's the default shell on many
 systems, such as OS X and many breeds of Linux. There are other shells; many
 people swear by `zsh`, so feel free to try another one out. The tips listed here
-are compatible with `zsh` and probably other shells as well.
+are compatible with both `bash` and `zsh`, and probably other shells as well.
 
-You don't need to read this document from beginning to end. I'd recommend you
-scan through the headings and just look at any of the sections which seem
-appealing.
+You don't need to read this document from beginning to end. Scan through the
+headings and look at any appealing sections.
 
 ## Keyboard Shortcuts
 
@@ -46,9 +43,9 @@ probably already know what to do.
 
 Everyone who's used a shell has at some point in their life spammed the
 <kbd>up</kbd>-key to find their last `g++` command, or last program invocation,
-or whatever else kids do nowadays on their terminals. Fortunately, `bash` has
-<kbd>Ctrl-R</kbd> for exactly this. At your terminal prompt, type
-<kbd>Ctrl-R</kbd>. It should look like this:
+or whatever else kids do nowadays on their terminals. Fortunately, `bash` has a
+command for exactly this. At your terminal prompt, type <kbd>Ctrl-R</kbd>. It
+should look like this:
 
 {% highlight sh %}
 (reverse-i-search)`':
@@ -65,7 +62,7 @@ the match before that, and so on.
 
 When you find the command you want, press <kbd>Enter</kbd> to run it. You can
 also edit the command before running it by pressing an arrow key or text
-manipulation key.
+manipulation key (see the next section).
 
 ### Text manipulation
 
@@ -135,8 +132,8 @@ Use <kbd>?</kbd> to search backward instead. (Notice that <kbd>?</kbd> is just
 <kbd>Shift-/</kbd>.)
 
 **Jump to top/bottom**: Type <kbd>G</kbd> to go to the bottom of the file, and
-<kbd>gg</kbd> to go to the top. (Why these keys? They're also Vim keybindings.
-If you forget, try both; one is bound to do what you want it to do.)
+<kbd>gg</kbd> to go to the top. (These are also Vim keybindings.  If you forget
+which is which, try both: one is bound to perform the desired action.)
 
 ### Viewing command output
 
@@ -149,12 +146,18 @@ $ ./my-program | less
 {% endhighlight %}
 
 This only forwards `stdout` to `less`. If you want to forward `stderr` as well,
-you can use the `|&` operator. You probably want to do this whenever you compile
-something:
+you can use the `|&` operator.
 
 {% highlight sh %}
 $ g++ main.cpp |& less
 {% endhighlight %}
+
+<aside class="aside-tip"><p>
+
+Compiler errors are produced on stderr, so you'll almost always want to use
+<code>|&</code>.
+
+</p></aside>
 
 Now you can use all the `less` commands from the previous section to scroll and
 search through your output.
@@ -200,7 +203,7 @@ TODO: Show picture.
 
 ## Multiple terminals at once
 
-Most people are okay with having multiple terminal windows open, so this section
+Many people are okay with having multiple terminal windows open, so this section
 won't be useful to them. But if you hate having to SSH into CAEN for every new
 terminal window you open, or you just want to look cool, you can use a *terminal
 multiplexer*. A terminal multiplexer will let you have multiple sessions at
@@ -212,17 +215,42 @@ mostly better.
 Launch `tmux` in your terminal. You should get a new, blank screen, except with
 a status line at the bottom. (It'll say something like `0:bash`.)
 
+TODO: Show picture.
+
 Run a simple command, like `echo hi`, and see that it works the same as your
 regular terminal.
 
-Type <kbd>Ctrl-b c</kbd> (which means <kbd>Ctrl-b</kbd>, then lift up your
-fingers, then <kbd>c</kbd>). This creates a new, empty terminal window. To
-switch between your terminal windows, use <kbd>Ctrl-b n</kbd> and <kbd>Ctrl-b
-p</kbd> (for next and previous).
+**Getting help**: Run <kbd>Ctrl-b ?</kbd> to get a list of current keybindings.
 
-If you want to close a window, just exit the shell. You can do this with the
-`exit` command, or you can use <kbd>Ctrl-d</kbd> at an empty prompt. When all
-windows are closed, `tmux` will exit.
+**Creating windows**: Use <kbd>Ctrl-b c</kbd> (which means <kbd>Ctrl-b</kbd>,
+then lift up your fingers, then <kbd>c</kbd>). This creates a new, empty
+terminal window.
+
+**Switching windows**: Use <kbd>Ctrl-b n</kbd> and <kbd>Ctrl-b p</kbd> (for
+*next* and *previous*). You can jump directly to a window with <kbd>Ctrl-b</kbd>
+followed by the index of the window.
+
+<aside class="aside-tip"><p>
+
+Window numbering is zero-indexed, which is "intuitive", but it also means that
+you have to reach all the way over to the zero key to select the first window.
+You can set the <code>base-index</code> option to <code>1</code> in your
+<code>.tmux.conf</code> file to make life a bit easier on your fingers.
+
+TODO: Add intra-document link to the configuration section.
+
+</p></aside>
+
+**Destroying windows**: If you want to close a window, just exit the shell. You
+can do this with the `exit` command, or you can use <kbd>Ctrl-d</kbd> at an
+empty prompt. When all windows are closed, `tmux` will exit. If you need to
+force-kill a window, you can use <kbd>Ctrl-b &</kbd>.
+
+**Examining output**: If you want to scroll up and see old output, you can use
+<kbd>Ctrl-b PgUp</kbd> and <kbd>Ctrl-b PgDn</kbd>. You can search forward
+through old output with <kbd>Ctrl-b /</kbd> and backwards with <kbd>Ctrl-b
+?</kbd>. This can be convenient if you forgot to pipe your output into a pager
+or a file.
 
 ### Using panes
 
@@ -249,6 +277,7 @@ which is <kbd>Ctrl-b</kbd> by default, to be <kbd>Ctrl-a</kbd>. You can set it
 to whatever you want, of course.
 
 `tmux` is quite customizable. Take a look at the internet, the `man`-pages, or
-some example `.tmux.conf` files if you want more inspiration. (Here's mine:
+some example `.tmux.conf` files if you want more inspiration. (Here's mine,
+though I wouldn't recommend that you copy it verbatim:
 https://github.com/arxanas/dotfiles TODO: Put a full link to the actual
 `.tmux.conf` file.)
