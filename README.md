@@ -3,6 +3,9 @@
 This is the source for http://waleedkhan.name/281. If you're interested in
 contributing, open a pull request.
 
+If you have questions about the subject material or how to contribute, open an
+issue.
+
 # Contributing
 
 The following are welcomed as pull requests:
@@ -16,7 +19,6 @@ The following are not welcomed:
 
   * Editor wars.
   * Emacs users.
-
 
 # Previewing the website
 
