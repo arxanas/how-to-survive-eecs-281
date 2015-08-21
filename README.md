@@ -1,3 +1,8 @@
+# About
+
+This is the source for http://waleedkhan.name/281. If you're interested in
+contributing, open a pull request.
+
 # Contributing
 
 The following are welcomed as pull requests:
