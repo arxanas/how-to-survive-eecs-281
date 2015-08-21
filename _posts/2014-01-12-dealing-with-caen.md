@@ -18,7 +18,7 @@ At the end of this article, there's a guide to mounting a directory on CAEN as
 if it were on your local computer, but it only works in OS X and Linux. You may
 prefer to use this to avoid having to manually keep things in sync.
 
-# Stop typing `login.engin.umich.edu` using by SSH aliases
+# Stop typing `login.engin.umich.edu` by using SSH aliases
 
 You probably don't like typing the verbose `ssh you@login.engin.umich.edu` all
 the time. Fortunately, `ssh` has a built-in method for setting up *aliases* for
