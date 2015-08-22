@@ -47,6 +47,10 @@
 
       <div class="footer-col  footer-col-3">
         <p class="text">{{ site.description }}</p>
+
+        {% if site.contribute_link %}
+          <p class="text">Typos? Suggestions? <a href="{{ site.contribute_link }}">Contribute.</a></p>
+        {% endif %}
       </div>
     </div>
 

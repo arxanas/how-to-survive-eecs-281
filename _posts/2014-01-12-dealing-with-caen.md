@@ -18,7 +18,7 @@ At the end of this article, there's a guide to mounting a directory on CAEN as
 if it were on your local computer, but it only works in OS X and Linux. You may
 prefer to use this to avoid having to manually keep things in sync.
 
-# Stop typing `login.engin.umich.edu` using by SSH aliases
+# Stop typing `login.engin.umich.edu` by using SSH aliases
 
 You probably don't like typing the verbose `ssh you@login.engin.umich.edu` all
 the time. Fortunately, `ssh` has a built-in method for setting up *aliases* for
@@ -31,6 +31,13 @@ your uniqname):
 
 This sets up a new alias, so now you can type `ssh caen` instead to log into
 CAEN.
+
+<aside class="aside-warning"><p>
+
+<code>~/.ssh/config</code> may not exist, especially if you've never used it
+before. You'll have to create it in that case.
+
+</p></aside>
 
 # Uploading files to CAEN
 
@@ -97,7 +104,9 @@ OS X users:
  1. Ensure you have Homebrew installed. You can get it from
     [brew.sh](http://brew.sh).
 
- 2. Install `osxfuse` by running this command in your terminal: `brew install
+ 2. Make sure Homebrew is up-to-date. Run `brew update` in your terminal.
+
+ 3. Install `osxfuse` by running this command in your terminal: `brew install
     osxfuse`.  Homebrew should install it for you and give you output like
 this:
 
@@ -106,9 +115,10 @@ this:
           sudo /bin/cp -RfX something...
           sudo chmod +s something...
 
-    Copy each of the two commands which were outputted in your terminal and run
-them.
- 3. Install `sshfs` by running `brew install sshfs`.
+ 4. The output from `brew` contained two commands, as seen above. Copy and paste
+    them each of them into your terminal and run them.
+
+ 5. Install `sshfs` by running `brew install sshfs`.
 
 Now you can use `sshfs`. Open up the terminal and navigate to the place where
 you want to make the virtual folder show up. For example:
@@ -152,11 +162,16 @@ That does not say "unmount". Read it again.
 
 </p></aside>
 
-Caveats:
+# Caveats
 
-  * If you lose internet connectivity, you'll be disconnected from CAEN.
-    Unfortunately, this includes putting your laptop to sleep. To reconnect,
-you'll have to run `umount` and `sshfs` again.
-  * Object files and executables compiled on CAEN probably won't work on your
-    local computer, and vice-versa. If you get weird errors about linking, try
-running `make clean` and then recompiling.
+<aside class="aside-critical"><ul>
+
+<li>If you lose internet connectivity, you'll be disconnected from CAEN.
+Unfortunately, this includes putting your laptop to sleep. To reconnect, you'll
+have to run <code>umount</code> and <code>sshfs</code> again.</li>
+
+<li>Object files and executables compiled on CAEN probably won't work on your
+local computer, and vice-versa. If you get weird errors about linking, try
+running <code>make clean</code> and then recompiling.</li>
+
+</ul></aside>
