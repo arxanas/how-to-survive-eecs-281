@@ -34,7 +34,10 @@ are compatible with both `bash` and `zsh`, and probably other shells as well.
 You don't need to read this document from beginning to end. Scan through the
 headings and look at any appealing sections.
 
-## Keyboard Shortcuts
+* toc
+{:toc}
+
+## Keyboard shortcuts
 
 `bash` uses Emacs keybindings by default, so if you happen to use Emacs then you
 probably already know what to do.
