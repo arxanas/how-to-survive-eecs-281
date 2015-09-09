@@ -115,10 +115,19 @@ this:
           sudo /bin/cp -RfX something...
           sudo chmod +s something...
 
- 4. The output from `brew` contained two commands, as seen above. Copy and paste
+ 4. Newer OS will throw an error saying:
+      
+      Building this formula from source isn't possible due to OS X Yosemite and above's strict unsigned kext ban.
+      You can install with Homebrew Cask:
+      brew install Caskroom/cask/osxfuse
+      Error: Unsatisfied requirements failed this build.
+    
+    In this case just enter the command "brew install Caskroom/cask/osxfuse"
+    
+ 5. The output from `brew` contained two commands, as seen above. Copy and paste
     them each of them into your terminal and run them.
 
- 5. Install `sshfs` by running `brew install sshfs`.
+ 6. Install `sshfs` by running `brew install homebrew/fuse/sshfs`.
 
 Now you can use `sshfs`. Open up the terminal and navigate to the place where
 you want to make the virtual folder show up. For example:
