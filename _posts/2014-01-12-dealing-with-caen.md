@@ -18,7 +18,10 @@ At the end of this article, there's a guide to mounting a directory on CAEN as
 if it were on your local computer, but it only works in OS X and Linux. You may
 prefer to use this to avoid having to manually keep things in sync.
 
-# Stop typing `login.engin.umich.edu` by using SSH aliases
+* toc
+{:toc}
+
+## Stop typing `login.engin.umich.edu` by using SSH aliases
 
 You probably don't like typing the verbose `ssh you@login.engin.umich.edu` all
 the time. Fortunately, `ssh` has a built-in method for setting up *aliases* for
@@ -39,7 +42,7 @@ before. You'll have to create it in that case.
 
 </p></aside>
 
-# Uploading files to CAEN
+## Uploading files to CAEN
 
 You can use the `scp` command (secure copy) to copy files to and from CAEN.
 `scp`'s syntax is the same as `cp`'s, except that either the source or
@@ -84,7 +87,7 @@ If you want to copy a whole directory, then you need to pass the `-r`
 $ scp -r my-directory caen:project-1
 {% endhighlight %}
 
-# Downloading files from CAEN
+## Downloading files from CAEN
 
 Just put the arguments to `scp` in the reverse order to download from CAEN:
 
@@ -92,7 +95,7 @@ Just put the arguments to `scp` in the reverse order to download from CAEN:
 $ scp -r caen:project-1/my-directory my-directory
 {% endhighlight %}
 
-# Mounting CAEN as if it were a local drive
+## Mounting CAEN as if it were a local drive
 
 You can use `sshfs` ("SSH filesystem") to access files over SSH
 as if they were on your local computer.
@@ -175,7 +178,7 @@ That does not say "unmount". Read it again.
 
 </p></aside>
 
-# Caveats
+### Caveats
 
 <aside class="aside-critical"><ul>
 
