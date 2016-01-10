@@ -33,7 +33,8 @@ people swear by `zsh`, so feel free to try another one out. The tips listed here
 are compatible with both `bash` and `zsh`, and probably other shells as well.
 
 You don't need to read this document from beginning to end. Scan through the
-headings and look at any appealing sections.
+headings and look at any appealing sections. If you had to read only one thing,
+it should be [tab-completion](#tab-completion).
 
 * toc
 {:toc}
@@ -42,6 +43,28 @@ headings and look at any appealing sections.
 
 `bash` uses Emacs keybindings by default, so if you happen to use Emacs then you
 probably already know what to do.
+
+### Tab-completion
+
+You can tab-complete file and directory names in `bash`. For example:
+
+    $ cd e<tab>
+    $ ./p<tab> < te<tab>-1<tab>
+
+might be equivalent to
+
+    $ cd eecs281
+    $ ./program < test-1.txt
+
+Tab-completion saves time and helps you to avoid spelling mistakes.
+
+If a filename is ambiguous, you may see a listing of filenames, like this:
+
+    $ cd f<tab>
+    foo1/  foo2/
+
+You can continue typing the filename and then press tab again to fully complete
+the filename.
 
 ### Searching through history
 
