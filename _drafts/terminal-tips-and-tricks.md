@@ -3,6 +3,7 @@ layout: post
 title: Terminal Tips and Tricks
 subtitle: Stop pressing <kbd>up</kbd> a million times to
   find that <code>g++</code> command!
+category: workflow
 permalink: /terminal-tips-and-tricks/
 ---
 You probably spend a lot of time on CAEN, or SSHed into CAEN, or working on a
