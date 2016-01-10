@@ -69,3 +69,30 @@ aside {
 .blank-page {
     height: 500px;
 }
+
+.post-content dl {
+    margin-left: 20px;
+
+    dt {
+        display: inline;
+        font-weight: bold;
+
+        code, pre {
+            font-weight: normal;
+        }
+
+        &:after {
+            content: ":";
+            font-weight: normal;
+        }
+    }
+
+    dd {
+        display: inline;
+
+        &:after {
+            content: "\A";
+            white-space: pre;
+        }
+    }
+}

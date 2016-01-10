@@ -19,7 +19,10 @@ with some method to edit remotely, such as [SSHFS][sshfs] or [SFTP][sftp].
   [sshfs]: {{ site.baseurl }}/dealing-with-caen/
   [sftp]: http://rdxiang.github.io/programming/sublime-sftp/
 
-# Introduction
+* toc
+{:toc}
+
+## Prerequisites
 
 This guide is for Mac OS X users only.
 
@@ -41,6 +44,7 @@ Things you will need (install in this order):
     package (it should be the only one named this --- if it is not, you may be
 using Sublime Text 3).
 
+## Installing GCC
 
 To use SublimeClang, we'll need a custom version of the GNU Compiler Collection
 (or "GCC") supporting C++11. (We'll use GCC 4.9.) First type `brew tap
@@ -59,13 +63,30 @@ homebrew/versions` into the terminal and hit enter. My output looked like this:
 
     ...
 
-Easy! The next thing you want to type is `brew install gcc49` This will install
+Easy! The next thing you want to type is `brew install gcc49`. This will install
 `gcc` 4.9.2 and a few of its dependencies. These aren't large files, but they do
 take a while to download/install, so be prepared to keep your computer powered
-and connected to the internet. The following dependencies will install
-automatically: `gmp4` (2.8 minutes for me), `mpfr2` (1 minute), `libmpc08` (30
-seconds), `pkg-config` (half a second), and `cloog018` (15 seconds). Then, the
-main installation of `gcc49` will start. This took my computer 31 minutes.
+and connected to the internet.
+
+The following dependencies will install automatically:
+
+`gmp4`
+: 2.8 minutes
+
+`mpfr2`
+: 1 minute
+
+`libmpc08`
+: 30 seconds
+
+`pkg-config`
+: Half a second
+
+`cloog018`
+: 15 seconds.
+
+Then, the main installation of `gcc49` will start.  This took my computer 31
+minutes.
 
 I list the times here just so you understand that it takes *some* time. Time
 will vary based on internet connection and how zippy your computer is. Here was
@@ -166,9 +187,11 @@ Save the settings file and close it.
 
 We're done with all the installation! You should be able to open your
 `helloWorld.cpp` from earlier and add something incorrect. Save the file
-(`command + s`) and watch the errors pop up in the console below! Taking the
+(<kbd>Cmd+s</kbd>) and watch the errors pop up in the console below! Taking the
 semicolon off the end or using a vector without including `<vector>` should be
 enough to throw an error.
+
+{% image exampleError.png "Compile error showing in Sublime Text." %}
 
 This means that you can open projects with Sublime Text 2 and have them link and
 compile correctly --- allowing you access to autocompletion for the entire
