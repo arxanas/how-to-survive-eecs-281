@@ -198,8 +198,8 @@ shells.
 
 ## Showing file differences
 
-TODO: Include link to /painless-automated-testing/. Make it not-hardcoded,
-ideally. Is there a url-for-permalink function?
+If you want to run tests and show differences automatically, take a look at
+[Painless Automated Testing]({{ site.baseurl }}{% post_url 2014-12-21-painless-automated-testing %}).
 
 The `diff` command takes two files and tells you how they're different. For
 example:
@@ -226,7 +226,7 @@ You can use all of the `less` keybindings you learned above, except that to
 quit, you need to type `:qall`. You can also use any other Vim keybindings you
 know, since this is actually Vim.
 
-TODO: Show picture.
+{% image vimdiff.png "Highlighting differences in vim." %}
 
 ## Multiple terminals at once
 
