@@ -106,6 +106,8 @@ the output at the end of the installation process:
 
     ...
 
+## Configuring Sublime Text
+
 We're almost finished! After the install is done, you'll want to try and compile
 a C++ program using your new fancy GNU compiler. I recommend compiling a simple
 "Hello World" on your desktop, but regardless of what you compile, make sure to
