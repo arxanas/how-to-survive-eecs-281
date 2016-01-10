@@ -2,6 +2,7 @@
 layout: post
 title: Avoiding Code Duplication
 subtitle: The simplest technique you can use to write less buggy code.
+category: coding
 permalink: /code-deduplication/
 ---
 The biggest source of bugs in code in EECS 281, in my experience, is a lack of clean code. _"Hey, if my code works, it works -- there's no need to get all fussy about how I write it,"_ you might say. It's true that you can get full points on the autograder with all of your code shoved in @main@, but do you ever wonder about how those 'genius' programmers get done so quickly? They somehow seem to get it right the first time they write their code.

@@ -165,8 +165,11 @@
     padding: $spacing-unit 0;
 }
 
-.page-heading {
+.category-heading {
     font-size: 20px;
+    text-transform: capitalize;
+
+    border-bottom: 1px solid $grey-color-light;
 }
 
 .post-list {

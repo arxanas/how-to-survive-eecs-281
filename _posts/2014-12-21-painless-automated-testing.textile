@@ -2,6 +2,7 @@
 layout: post
 title: Painless Automated Testing
 subtitle: Running a test suite automatically in ten lines of code.
+category: coding
 permalink: /painless-automated-testing/
 ---
 I'm guessing that you don't like testing. Fortunately, we can make testing a lot easier to do by writing a script to do it for us. In this post, you'll learn how to write a simple shell script which will run your program with input and compare it against the expected output.

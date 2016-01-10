@@ -2,6 +2,7 @@
 layout: post
 title: Dealing with CAEN
 subtitle: Connecting to and uploading/downloading from CAEN efficiently.
+category: workflow
 permalink: /dealing-with-caen/
 ---
 This is a handful of tips for managing files on CAEN effectively using command

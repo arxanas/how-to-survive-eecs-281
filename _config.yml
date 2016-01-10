@@ -7,6 +7,13 @@ description: > # this means to ignore newlines until "baseurl:"
 baseurl: "/281" # the subpath of your site, e.g. /blog/
 url: "http://waleedkhan.name" # the base hostname & protocol for your site
 
+# We can get a list of categories already, but we want to be sure to display
+# them in this order.
+all_categories:
+  - editing
+  - coding
+  - workflow
+
 contribute_link: "https://github.com/arxanas/how-to-survive-eecs-281"
 
 # Build settings

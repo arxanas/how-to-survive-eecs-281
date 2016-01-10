@@ -4,16 +4,18 @@ layout: default
 
 <div class="home">
 
-  <h1 class="page-heading">Posts</h1>
-
   <dl class="post-list">
-    {% for post in site.posts %}
-      <dt>
-        <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-      </dt>
-      <dd class="post-meta">
-        {{ post.subtitle }}
-      </dd>
+    {% for category in site.all_categories %}
+      <h1 class="category-heading">{{ category }}</h1>
+
+      {% for post in site.categories[category] %}
+        <dt>
+          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+        </dt>
+        <dd class="post-meta">
+          {{ post.subtitle }}
+        </dd>
+      {% endfor %}
     {% endfor %}
   </dl>
 

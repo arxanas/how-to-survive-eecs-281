@@ -3,6 +3,7 @@ layout: post
 title: Code-Completion in Sublime Text
 subtitle: Apparently some of you use Sublime Text, so I asked a friend
   how to set up code-completion.
+category: editing
 permalink: /sublime-clang/
 ---
 
