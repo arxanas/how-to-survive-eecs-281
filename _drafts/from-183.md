@@ -2,12 +2,16 @@
 layout: post
 title: What 183 and 280 didn't mention
 subtitle: Common issues we see in incoming students.
+category: coding
 permalink: /from-183-and-280/
 ---
 
 There's a set of common coding and testing mistakes that incoming students make.
 You can save yourself a lot of headache by reading about them now, rather than
 being confused later.
+
+* toc
+{:toc}
 
 ## Coding
 
@@ -26,9 +30,9 @@ You should structure your program in such a way that you can `return 0` from
 
 ### Iterators
 
-We encourage the use of C++11 in this class. One feature of C++11 is `auto`,
-which lets you omit types in many cases. In particular, avoid typing out long
-container iterator declarations:
+We encourage the use of C++14 in this class. One feature of C++14 is `auto`,
+which lets you omit types in many cases. (This feature is available since
+C++11). In particular, avoid typing out long container iterator declarations:
 
 {% highlight cpp %}
 std::vector<int> myvec = {1, 2, 3};
@@ -96,9 +100,9 @@ for (int i = 0; i < myvec.size(); i++) {
 }
 {% endhighlight %}
 
-This is only worse than `break`, since it's fragile (changing the loop condition
-can cause your code to, ehm, break) and its significance can be unclear. At this
-point, you should just use `break`.
+This is only ever worse than `break`, since it's fragile (changing the loop
+condition can cause your code to, ehm, break) and its significance can be
+unclear. At this point, you should just use `break`.
 
 ### Reading input
 
@@ -163,7 +167,7 @@ while (true) {
     int bar;
     int baz;
     std::cin >> foo >> bar >> baz;
-    if (!std::cin.good()) {
+    if (!std::cin) {
         // Finished reading input file.
         break;
     }
