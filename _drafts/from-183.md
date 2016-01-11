@@ -1,9 +1,9 @@
 ---
 layout: post
-title: What 183 and 280 didn't mention
+title: What EECS 183 and 280 didn't mention
 subtitle: Common issues we see in incoming students.
 category: coding
-permalink: /from-183-and-280/
+permalink: /from-eecs-183-and-280/
 ---
 
 There's a set of common coding and testing mistakes that incoming students make.
@@ -28,7 +28,7 @@ delete its underlying array.)
 You should structure your program in such a way that you can `return 0` from
 `main` instead, which will allow destructors to run.
 
-### Iterators
+### Iterators and auto
 
 We encourage the use of C++14 in this class. One feature of C++14 is `auto`,
 which lets you omit types in many cases. (This feature is available since
@@ -58,7 +58,8 @@ for (auto it = myvec.begin(); it != myvec.end(); ++it) {
 {% endhighlight %}
 
 This is shorter, won't break your code when you change the type of `myvec`, and
-will automatically handle `const` issues.
+will automatically handle `const` issues. See also [range-based for
+loops](#range-based-for-loops) for an even *better* way of doing it.
 
 <aside class="aside-info"><p>
 
@@ -71,6 +72,34 @@ If you're just trying to declare a variable with an automatically inferred type,
 and you're not assigning it, use <code>decltype</code> instead.
 
 </p></aside>
+
+### Range-based for loops
+
+As of C++11, you can use "range-based for loop" syntax to iterate through a
+container:
+
+{% highlight cpp %}
+std::vector<int> myvec = {1, 2, 3};
+
+for (auto num : myvec) {
+    // ...
+}
+{% endhighlight %}
+
+This automatically does the hard work of dereferencing iterators for you. Notice
+that `num` is an `int`, not an iterator. When possible, use this syntax as it is
+the shortest and easiest to read.
+
+Make sure to pass your for-loop variable by reference or const reference if
+applicable:
+
+{% highlight cpp %}
+std::vector<LargeStruct> myvec = makeVec();
+
+for (const auto& largeStruct : myvec) {
+    // ...
+}
+{% endhighlight %}
 
 ### Using <code>break</code>
 
@@ -86,8 +115,9 @@ Is that paper by our very own Professor Soloway? Yes it is. Go read it.
 
 </p></aside>
 
-If you have examined both arguments and still opt not to use `break` (which is
-fine), you absolutely must not use hacks like this to terminate your loop early:
+If you have examined both arguments and still opt not to use `break`, which is a
+fine viewpoint to hold, you absolutely must not use hacks like this to terminate
+your loop early:
 
 {% highlight cpp %}
 for (int i = 0; i < myvec.size(); i++) {
