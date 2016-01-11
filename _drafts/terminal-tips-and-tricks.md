@@ -159,8 +159,8 @@ Use <kbd>?</kbd> to search backward instead. (Notice that <kbd>?</kbd> is just
 <kbd>Shift-/</kbd>.)
 
 **Jump to top/bottom**: Type <kbd>G</kbd> to go to the bottom of the file, and
-<kbd>gg</kbd> to go to the top. (These are also Vim keybindings.  If you forget
-which is which, try both: one is bound to perform the desired action.)
+<kbd>g</kbd> to go to the top. (These are similar to Vim keybindings. If you
+forget which is which, try both: one is bound to perform the desired action.)
 
 ### Viewing command output
 
@@ -239,45 +239,51 @@ mostly better.
 
 ### Using windows
 
-Launch `tmux` in your terminal. You should get a new, blank screen, except with
-a status line at the bottom. (It'll say something like `0:bash`.)
+Launch `tmux` in your terminal on CAEN. You should get a new, blank screen,
+except with a status line at the bottom. (It'll say something like `0:bash`.)
 
-TODO: Show picture.
+{% image tmux-new-screen.png "A new tmux session." %}
 
 Run a simple command, like `echo hi`, and see that it works the same as your
 regular terminal.
 
-**Getting help**: Run <kbd>Ctrl-b ?</kbd> to get a list of current keybindings.
+**Getting help**: Run <kbd>Ctrl-b ?</kbd> (which means <kbd>Ctrl-b</kbd>, then
+lift up your fingers, then <kbd>?</kbd>) to get a list of current keybindings.
+Press <kbd>q</kbd> to exit that screen.
 
-**Creating windows**: Use <kbd>Ctrl-b c</kbd> (which means <kbd>Ctrl-b</kbd>,
-then lift up your fingers, then <kbd>c</kbd>). This creates a new, empty
-terminal window.
+**Creating windows**: Use <kbd>Ctrl-b c</kbd>. (Make sure to stop pressing
+<kbd>Ctrl</kbd> before pressing <kbd>c</kbd>.) This creates a new, empty
+terminal window, which you can run different commands in. You can see all the
+open windows in the statusline at the bottom.
+
+{% image tmux-new-window.png "Two tmux windows are open at once." %}
 
 **Switching windows**: Use <kbd>Ctrl-b n</kbd> and <kbd>Ctrl-b p</kbd> (for
 *next* and *previous*). You can jump directly to a window with <kbd>Ctrl-b</kbd>
-followed by the index of the window.
+followed by the index of the window (for example, <kbd>Ctrl-b 0</kbd> to jump to
+the window labelled 0).
 
 <aside class="aside-tip"><p>
 
 Window numbering is zero-indexed, which is "intuitive", but it also means that
 you have to reach all the way over to the zero key to select the first window.
-You can set the <code>base-index</code> option to <code>1</code> in your
-<code>.tmux.conf</code> file to make life a bit easier on your fingers.
-
-TODO: Add intra-document link to the configuration section.
+You can set the <code>base-index</code> option to <code>1</code> <a
+href="#binding-keys">in your <code>.tmux.conf</code> file</a> to make life a bit
+easier on your fingers.
 
 </p></aside>
 
 **Destroying windows**: If you want to close a window, just exit the shell. You
-can do this with the `exit` command, or you can use <kbd>Ctrl-d</kbd> at an
-empty prompt. When all windows are closed, `tmux` will exit. If you need to
-force-kill a window, you can use <kbd>Ctrl-b &</kbd>.
+can do this with the `exit` command, or you can type <kbd>Ctrl-d</kbd> at an
+empty prompt. When all windows are closed, `tmux` will exit.
 
-**Examining output**: If you want to scroll up and see old output, you can use
+**Examining output**: If you want to scroll up and see old output, you can type
 <kbd>Ctrl-b PgUp</kbd> and <kbd>Ctrl-b PgDn</kbd>. You can search forward
 through old output with <kbd>Ctrl-b /</kbd> and backwards with <kbd>Ctrl-b
-?</kbd>. This can be convenient if you forgot to pipe your output into a pager
-or a file.
+?</kbd>. This can be convenient if you forgot to [pipe your output into a pager
+or a file](#viewing-files).
+
+{% image tmux-scroll-up.png "Scroll through old output." %}
 
 ### Using panes
 
@@ -286,11 +292,11 @@ Type <kbd>Ctrl-b "</kbd> to split the current window into an upper and lower
 pane. Type <kbd>Ctrl-b %</kbd> to split the current window into a left and right
 pane.
 
+{% image tmux-multiple-panes.png "Multiple tmux panes open at once." %}
+
 To switch between panes, use <kbd>Ctrl-b</kbd> followed by an arrow key.
 
 Panes will be destroyed when the shell exits, just the same as windows.
-
-TODO: Show picture.
 
 ### Binding keys
 
@@ -304,7 +310,6 @@ which is <kbd>Ctrl-b</kbd> by default, to be <kbd>Ctrl-a</kbd>. You can set it
 to whatever you want, of course.
 
 `tmux` is quite customizable. Take a look at the internet, the `man`-pages, or
-some example `.tmux.conf` files if you want more inspiration. (Here's mine,
-though I wouldn't recommend that you copy it verbatim:
-https://github.com/arxanas/dotfiles TODO: Put a full link to the actual
-`.tmux.conf` file.)
+some example `.tmux.conf` files if you want more inspiration. Here's mine,
+although I wouldn't recommend that you copy it verbatim:
+[https://github.com/arxanas/dotfiles/blob/master/.tmux.conf](https://github.com/arxanas/dotfiles/blob/master/.tmux.conf).
