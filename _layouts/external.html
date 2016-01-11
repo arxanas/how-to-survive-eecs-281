@@ -1,0 +1,16 @@
+---
+layout: default
+---
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-meta">{% if page.meta %}{{ page.meta }}{% endif %}</p>
+  </header>
+
+  <article class="post-content">
+    This post is a link to another post:
+    <a href="{{ page.external-link }}">{{ page.external-link }}</a>.
+  </article>
+
+</div>

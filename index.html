@@ -10,9 +10,16 @@ layout: default
 
       {% for post in site.categories[category] %}
         <dt>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+          {% if post.layout == "external" %}
+            <a class="post-link" href="{{ post.external-link }}">{{ post.title }}</a>
+          {% else %}
+            <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+          {% endif %}
         </dt>
         <dd class="post-meta">
+          {% for tag in post.tags %}
+            <span class="post-tag">{{ tag }}</span>
+          {% endfor %}
           {{ post.subtitle }}
         </dd>
       {% endfor %}

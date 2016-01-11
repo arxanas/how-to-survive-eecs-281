@@ -1,3 +1,7 @@
+$tag-font-size: 10px;
+$tag-font-background-color: #3030ff;
+$tag-font-color: white;
+
 /**
  * Site header
  */
@@ -190,6 +194,18 @@
 .post-link {
     display: block;
     font-size: 24px;
+}
+
+.post-tag {
+    border-radius: 5px;
+    padding: 2px 4px;
+
+    background-color: $tag-font-background-color;
+    color: $tag-font-color;
+
+    font-size: $tag-font-size;
+    font-family: Tahoma, Verdana, sans-serif;
+    font-weight: 700;
 }
 
 
