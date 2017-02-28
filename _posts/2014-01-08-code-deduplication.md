@@ -1,0 +1,522 @@
+---
+layout: post
+title: Avoiding Code Duplication
+subtitle: The simplest technique you can use to write less buggy code.
+category: coding
+permalink: /code-deduplication/
+---
+
+The biggest source of bugs in code in EECS 281, in my experience, is a lack of
+clean code. *"Hey, if my code works, it works — there's no need to get all
+fussy about how I write it,"* you might say. It's true that you can get full
+points on the autograder with all of your code shoved in `main`, but do you ever
+wonder about how those 'genius' programmers get done so quickly? They somehow
+seem to get it right the first time they write their code.
+
+This guide is aimed at drilling just one critical idea into your head which I
+guarantee will make you a better programmer: *never duplicate code*. One of the
+best habits you can form is to keep looking for duplicated code and
+deduplicating it.
+
+<aside class="aside-info"><p>
+
+If you already don't duplicate code, great! There's no need to read this
+article. The second most important technique is to <em>use functions to
+modularize code</em> but I'm capped at one life-changing topic per article.
+
+</p></aside>
+
+## Why you should care
+
+What's the problem with duplicating code? In short, it's a maintenance
+nightmare: it's hard to both fix and build upon your code. In EECS 281, there
+will be a lot of both, so it's important that your code is accessible.
+
+When you duplicate code, you have a high risk of applying changes in one area
+but not its twin, leading to nefarious bugs. Sometimes you have two sections
+which are identical but shouldn't have been. These risks can be *entirely
+avoided* by avoiding the duplication in the first place!
+
+When you don't consolidate your code, the control flow of your program is hard
+to understand: when you branch, do you always run this block of code at the end
+of both the `if` branch and the `else` branch? Or is it slightly different in
+one branch? What if the different branches call out to different functions, and
+each of those functions may or may not do the same thing? It becomes much harder
+to reason about what your code will and won't do.
+
+This article isn't an exhaustive list of all the ways that code can be
+duplicated. It's just meant to help you begin to form your deduplication habits.
+You'll need to constantly look over your code as you write it and ask yourself
+"Are there any repeated blocks of code here? Can I rewrite it so that there
+aren't?"
+
+## Don't repeat expressions
+
+Suppose you had a point and a list of other points and you wanted to find the
+closest point in that list. Take a look at the following code and decide whether
+it's bug-free or not:
+
+{% highlight cpp %}
+Point point = getCurrentPoint();
+Point closest = otherPoints[0];
+double closestDistance = sqrt(pow(point.x - closest.x, 2), pow(point.y - closest.y, 2));
+for (Point other : otherPoints) {
+    if (sqrt(pow(other.x - closest.x, 2) + pow(other.y - closest.y, 2)) < closest) {
+        closest = other;
+        closestDistance = sqrt(pow(other.x - closest.x, 2) + pow(other.x - closest.x, 2));
+    }
+}
+return closest;
+{% endhighlight %}
+
+In the `closestDistance = ...` line, I've copied and pasted a `pow` call, but I
+forgot to change `x` to `y`. We can make it so that this bug can't possibly
+happen by defining a helper function:
+
+{% highlight cpp %}
+double distance(Point first, Point second) {
+    return sqrt(pow(first.x - second.x, 2) + pow(first.y - second.y, 2));
+}
+
+// ...
+
+Point point = getCurrentPoint();
+Point closest = otherPoints[0];
+double closestDistance = distance(point, closest);
+for (Point other : otherPoints) {
+    if (distance(point, other) < closestDistance) {
+        closest = other;
+        closestDistance = distance(point, other);
+    }
+}
+return closest;
+{% endhighlight %}
+
+If there's a lot of code in the `if`-block, I might change the `distance` call
+in the condition and forget that there's a call in the body as well. To prevent
+this from happening, we can introduce a temporary variable to hold the distance.
+By naming the variable, it also makes the code clearer:
+
+{% highlight cpp %}
+Point point = getCurrentPoint();
+Point closest = otherPoints[0];
+double closestDistance = distance(point, closest);
+for (Point other : otherPoints) {
+    double currentDistance = distance(point, other);
+    if (currentDistance < closestDistance) {
+        closest = other;
+        closestDistance = currentDistance;
+    }
+}
+return closest;
+{% endhighlight %}
+
+In practice, repeated expressions may not be as obvious as in this example. As a
+simple rule of thumb, if you have an expression in multiple places which has
+more than one term in it, you'll want to use a helper function or temporary
+variable.
+
+<aside class="aside-info"><p>
+
+Expression repetition can actually be a bug in some programs, even if it's typed
+correctly everywhere it's used. For example, if you read the current time, then
+do something else, then read the current time again, the clock may have
+advanced, causing you to unexpectedly get different times. It can also be a bit
+inefficient to recalculate an expensive calculation many times, like the
+<code>sqrt</code> call in the distance calculation above.
+
+</p></aside>
+
+## Don't repeat variables
+
+Sometimes you want to reference the same variable over and over again. In that
+case, use a reference for convenience.
+
+{% highlight cpp %}
+// Multidimensional vector.
+std::vector<std::vector<std::vector<MyClass>>> myVector;
+populateVector(myVector);
+
+for (int i = 0; i < myVector.size(); i++) {
+    for (int j = 0; j < myVector[i].size(); j++) {
+        for (int k = 0; k < myVector[i][j].size(); k++) {
+            someValue += myVector[i][j][k].doSomething();
+
+            myVector[i][j][k].doSomethingElse(someValue);
+
+            if (myVector[i][j][k].someCondition()) {
+                myVector[i][j][k].doSomethingConditionally();
+            }
+
+            // And so on for many, many lines of code...
+        }
+    }
+}
+{% endhighlight %}
+
+You can see that we repeat `myVector[i][j][k]` many times. If the indices are
+more complicated, it's really painful to keep typing it out. (In fact, this is
+one of the already-legible cases; indices can often be much more verbose when
+using a `map` later in the course.)
+
+The easiest way to avoid this duplication is to assign the element to a
+reference. This way, we can use and modify the variable without having to type
+out the whole name.
+
+{% highlight cpp %}
+for (int i = 0; i < myVector.size(); i++) {
+    for (int j = 0; j < myVector[i].size(); j++) {
+        for (int k = 0; k < myVector[i][j].size(); k++) {
+            auto& myValue = myVector[i][j][k];
+
+            someValue += myValue.doSomething();
+
+            myValue.doSomethingElse(someValue);
+
+            if (myValue.someCondition()) {
+                myValue.doSomethingConditionally();
+            }
+
+            // And so on for many, many lines of code...
+        }
+    }
+}
+{% endhighlight %}
+
+Lets say you switch to a two-dimensional vector later. It's very easy to modify
+the second version: just change the `myValue` definition and your code compiles,
+while in the first you have to go and change every usage site -- and you might
+make a subtle typo in one.
+
+Additionally, if you know that `myValue` won't be modified, mark it as `const`:
+
+{% highlight cpp %}
+for (int i = 0; i < myVector.size(); i++) {
+    for (int j = 0; j < myVector[i].size(); j++) {
+        for (int k = 0; k < myVector[i][j].size(); k++) {
+            const auto& myValue = myVector[i][j][k];
+
+            someValue += myValue.doSomething();
+
+            myValue.doSomethingElse(someValue);
+
+            if (myValue.someCondition()) {
+                myValue.doSomethingConditionally();
+            }
+
+            // And so on for many, many lines of code...
+        }
+    }
+}
+{% endhighlight %}
+
+This can save you quite a bit of headache because it will prevent you from
+accidentally modifying the element where you didn't mean to.
+
+## An example: handling different modes
+
+A lot of the projects have several different input or output modes. The worst
+way to handle them is to write the same exact code twice, in two different
+`if`-branches. Suppose we have a program that reads a list of integers and
+prints them out in reverse order. Additionally, suppose that in `MODE_EVEN`, we
+only print the even numbers, and in `MODE_ODD`, we only print the odd ones.
+Here's one way which it could be done:
+
+{% highlight cpp %}
+int main() {
+    std::string mode;
+    std::cin >> mode;
+
+    if (mode == "MODE_EVEN") {
+        std::vector<int> numbers;
+        int number;
+        while (std::cin >> number) {
+            numbers.push_back(number);
+        }
+
+        for (int i = numbers.size() - 1; i >= 0; i--) {
+            if (numbers[i] % 2 == 0) {
+                std::cout << numbers[i] << std::endl;
+            }
+        }
+    } else {
+        std::vector<int> numbers;
+        int number;
+        while (std::cin >> number) {
+            numbers.push_back(number);
+        }
+
+        for (int i = numbers.size() - 1; i >= 0; i--) {
+            if (numbers[i] % 2 == 1) {
+                std::cout << numbers[i] << std::endl;
+            }
+        }
+    }
+}
+{% endhighlight %}
+
+<aside class="aside-info"><p>
+
+I had a bug when I wrote this code! I started from <code>numbers.size()</code>
+instead of <code>numbers.size() - 1</code>, and I had to change it in two
+places. If this was a larger program, I might not have remembered to change the
+other place.
+
+Imagine if I submitted it to the autograder and I failed half the test cases. I
+might not even think to look for this bug, since I thought I had fixed it. You
+don't want to spend hours searching for a bug that you thought you had
+addressed.
+
+</p></aside>
+
+You can see that we repeat a whole segment of code, and the only difference is
+one innocuous little `1` versus `0`. What's the best way to deal with this? The
+first step is to identify which parts of the code are the exact same and which
+aren't. For example, the input routine is exactly the same for both. Let's move
+it out of the `if`-block:
+
+{% highlight cpp %}
+int main() {
+    std::string mode;
+    std::cin >> mode;
+
+    std::vector<int> numbers;
+    int number;
+    while (std::cin >> number) {
+        numbers.push_back(number);
+    }
+
+    if (mode == "MODE_EVEN") {
+        for (int i = numbers.size() - 1; i >= 0; i--) {
+            if (numbers[i] % 2 == 0) {
+                std::cout << numbers[i] << std::endl;
+            }
+        }
+    } else {
+        for (int i = numbers.size() - 1; i >= 0; i--) {
+            if (numbers[i] % 2 == 1) {
+                std::cout << numbers[i] << std::endl;
+            }
+        }
+    }
+}
+{% endhighlight %}
+
+Now half of the repeated code is deduplicated. But the iteration over `numbers`
+is still repeated. Let's hoist the `for`-loop out of the `if`-block:
+
+{% highlight cpp %}
+int main() {
+    std::string mode;
+    std::cin >> mode;
+
+    std::vector<int> numbers;
+    int number;
+    while (std::cin >> number) {
+        numbers.push_back(number);
+    }
+
+    for (int i = numbers.size() - 1; i >= 0; i--) {
+        if (mode == "MODE_EVEN") {
+            if (numbers[i] % 2 == 0) {
+                std::cout << numbers[i] << std::endl;
+            }
+        } else {
+            if (numbers[i] % 2 == 1) {
+                std::cout << numbers[i] << std::endl;
+            }
+        }
+    }
+}
+{% endhighlight %}
+
+Now we don't have the error-prone `for`-loop repeated, but we still have most of
+the modulus check and the entire output routine duplicated. Since the only thing
+which differs is the right-hand side of the equality check, we can put that into
+a variable:
+
+{% highlight cpp %}
+int main() {
+    std::string mode;
+    std::cin >> mode;
+
+    std::vector<int> numbers;
+    int number;
+    while (std::cin >> number) {
+        numbers.push_back(number);
+    }
+
+    for (int i = numbers.size() - 1; i >= 0; i--) {
+        int remainder;
+        if (mode == "MODE_EVEN") {
+            remainder = 0;
+        } else {
+            remainder = 1;
+        }
+
+        if (numbers[i] % 2 == remainder) {
+            std::cout << numbers[i] << std::endl;
+        }
+    }
+}
+{% endhighlight %}
+
+<aside class="aside-warning"><p>
+
+We can't say this:
+
+{% highlight cpp %}
+if (mode == "MODE_EVEN") {
+    int remainder = 0;
+} else {
+    int remainder = 1;
+}
+{% endhighlight %}
+
+The <code>remainder</code> declaration won't be visible outside the
+<code>if</code>-branch, so we won't be able to use it in the following lines.
+
+</p></aside>
+
+Much better! Now all of the identical logic is written only once, and we've
+pulled out the differing part into a single variable.
+
+The only thing left to do is calculate the remainder outside the `for`-loop. It
+doesn't change between iterations, so it doesn't make sense to recalculate it
+every time.
+
+{% highlight cpp %}
+int main() {
+    std::string mode;
+    std::cin >> mode;
+
+    std::vector<int> numbers;
+    int number;
+    while (std::cin >> number) {
+        numbers.push_back(number);
+    }
+
+    int remainder;
+    if (mode == "MODE_EVEN") {
+        remainder = 0;
+    } else {
+        remainder = 1;
+    }
+
+    for (int i = numbers.size() - 1; i >= 0; i--) {
+        if (numbers[i] % 2 == remainder) {
+            std::cout << numbers[i] << std::endl;
+        }
+    }
+}
+{% endhighlight %}
+
+When making changes to the code, we can now rest assured that changing the iteration bounds or the printing conditions will correctly update every mode.
+
+<aside class="aside-tip"><p>
+
+
+In the projects, the input routines and the actual solution will be longer than a few lines of code. You'll want to split unrelated bits of code into functions. One arrangement for this example is to have these functions:
+
+{% highlight cpp %}
+// Returns a vector of all the numbers given on standard input.
+std::vector<int> readNumbers();
+
+// Prints the numbers in 'numbers' in reverse if they have the given remainder.
+void printNumbersInReverse(const std::vector<int>& numbers, int remainder);
+{% endhighlight %}
+
+</p></aside>
+
+<aside class="aside-info"><p>
+
+Iterating over a vector in reverse is bug-prone, since the bounds are unusual.
+(If you're not careful, it's even possible to throw your program into an
+infinite loop if you use <code>unsigned int</code>s as the loop condition.)
+
+The best way to actually do it would be to use a reverse iterator. Here's one
+way:
+
+{% highlight cpp %}
+for (auto it = numbers.rbegin(); it != numbers.rend(); ++it) {
+    if (*it % 2 == remainder) {
+        std::cout << *it << std::endl;
+    }
+}
+{% endhighlight %}
+
+</p></aside>
+
+## Don't pass around tens of parameters
+
+If you're coding cleanly, you'll have many relatively small, self-contained
+functions that do one thing. One problem with this approach is that you might
+have to pass in many parameters to each of these functions so that it has all of
+the data it needs.
+
+{% highlight cpp %}
+void doSomething1(
+    std::vector<MyClass>& myObjects,
+    std::vector<int>& myValues,
+    int someParameter
+) {
+    // ...
+}
+
+void doSomething2(
+    std::vector<MyClass>& myObjects,
+    std::vector<int>& myValues,
+    const MyClass& someOtherParameter
+) {
+    // ...
+}
+{% endhighlight %}
+
+You can see that the first two parameters to both of these functions are the
+same. Typing out the same parameters everywhere is a headache, and you're prone
+to bugs where you've switched around parameters that happen to have the same
+type.
+
+When we have many methods that all operate on the same set of data, it's a good
+idea to package them into a class:
+
+{% highlight cpp %}
+// Please never name any of your classes this.
+class SomethingDoer {
+private:
+    std::vector<MyClass> myObjects;
+    std::vector<int> myValues;
+
+public:
+    SomethingDoer()
+        : myObjects(/* some initialization */),
+          myValues(/* some initialization */)
+    {
+        // ...
+    }
+
+    doSomething1(int someParameter) {
+        myObjects.front().doSomething3();
+        // etc.
+    }
+
+    doSomething2(const MyClass& someOtherParameter) {
+        // ...
+    }
+};
+{% endhighlight %}
+
+Now all of the duplicated parameters are still accessible to each of the
+functions, and we can easily see what unique data each function requires.
+Additionally, we can't accidentally switch around the order of parameters in a
+function call. As you progress through the projects, you'll find you can save a
+lot of tedious typing by using classes instead of a lot of parameters.
+
+## What next?
+
+By now, you hopefully have developed a little bit of rigor regarding duplicated
+code. As you write code, keep an eye out for things which could be deduplicated.
+(If you're using copy-and-paste, there's a good chance that you're duplicating
+code.) If you avoid code duplication, you'll gain a significant time advantage
+on the projects, since you won't spend as much time looking for silly
+duplication errors -- and this translates to a better final score.
