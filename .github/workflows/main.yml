@@ -1,0 +1,47 @@
+name: Publish site
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Use GitHub Actions' cache to shorten build times and decrease load on servers
+      - uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      # For Google Analytics
+      - name: Set environment variables
+        run: echo 'JEKYLL_ENV=production' >>"$GITHUB_ENV"
+
+      # Runs a single command using the runners shell
+      - name: Build blog
+        uses: jerryjvl/jekyll-build-action@v1
+    
+      # Push to the gh-pages branch
+      - name: Deploy blog
+        uses: Cecilapp/GitHub-Pages-deploy@3.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          email: me@waleedkhan.name
+          branch: gh-pages
+          cname: eecs281.waleedkhan.name
