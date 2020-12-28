@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Dealing with CAEN</title>
+  <meta name="description" content="This is a handful of tips for managing files on CAEN effectively using commandline tools. Alternatives include MFile, using an SFTPclient, or using an SFTP p...">
+
+  <link rel="stylesheet" href="/281/css/main.css">
+  <link rel="canonical" href="http://waleedkhan.name/281/dealing-with-caen/">
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-53066274-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Dealing with CAEN</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>This is a handful of tips for managing files on CAEN effectively using command
+line tools. Alternatives include <a href="http://mfile.umich.edu">MFile</a>, using an SFTP
+client, or using an SFTP plugin for your editor.</p>
+
+<p>If you’re using Sublime Text, many students use an SFTP plugin to automatically
+upload files to CAEN. However, I don’t have any experience with it and thus
+cannot offer any configuration advice.</p>
+
+<p>At the end of this article, there’s a guide to mounting a directory on CAEN as
+if it were on your local computer, but it only works in OS X and Linux. You may
+prefer to use this to avoid having to manually keep things in sync.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#stop-typing-loginenginumichedu-by-using-ssh-aliases" id="markdown-toc-stop-typing-loginenginumichedu-by-using-ssh-aliases">Stop typing <code class="language-plaintext highlighter-rouge">login.engin.umich.edu</code> by using SSH aliases</a></li>
+  <li><a href="#uploading-files-to-caen" id="markdown-toc-uploading-files-to-caen">Uploading files to CAEN</a></li>
+  <li><a href="#downloading-files-from-caen" id="markdown-toc-downloading-files-from-caen">Downloading files from CAEN</a></li>
+  <li><a href="#mounting-caen-as-if-it-were-a-local-drive" id="markdown-toc-mounting-caen-as-if-it-were-a-local-drive">Mounting CAEN as if it were a local drive</a>    <ul>
+      <li><a href="#caveats" id="markdown-toc-caveats">Caveats</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="stop-typing-loginenginumichedu-by-using-ssh-aliases">Stop typing <code class="language-plaintext highlighter-rouge">login.engin.umich.edu</code> by using SSH aliases</h2>
+
+<p>You probably don’t like typing the verbose <code class="language-plaintext highlighter-rouge">ssh you@login.engin.umich.edu</code> all
+the time. Fortunately, <code class="language-plaintext highlighter-rouge">ssh</code> has a built-in method for setting up <em>aliases</em> for
+hosts. Edit the file <code class="language-plaintext highlighter-rouge">~/.ssh/config</code> and add these lines (changing <code class="language-plaintext highlighter-rouge">you</code> to
+your uniqname):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Host caen
+  HostName login.engin.umich.edu
+  User you
+</code></pre></div></div>
+
+<p>This sets up a new alias, so now you can type <code class="language-plaintext highlighter-rouge">ssh caen</code> instead to log into
+CAEN.</p>
+
+<aside class="aside-warning"><p>
+
+<code>~/.ssh/config</code> may not exist, especially if you've never used it
+before. You'll have to create it in that case.
+
+</p></aside>
+
+<h2 id="uploading-files-to-caen">Uploading files to CAEN</h2>
+
+<p>You can use the <code class="language-plaintext highlighter-rouge">scp</code> command (secure copy) to copy files to and from CAEN.
+<code class="language-plaintext highlighter-rouge">scp</code>’s syntax is the same as <code class="language-plaintext highlighter-rouge">cp</code>’s, except that either the source or
+destination should be on a remote host.</p>
+
+<aside class="aside-warning"><p>
+
+You'll want to use <code>scp</code> by running it on your local machine
+(probably the computer you're viewing this on right now). <code>scp</code> will
+let you both upload and download files, but both will be done from your local
+machine.
+
+</p></aside>
+
+<p>For example, to copy <code class="language-plaintext highlighter-rouge">my-file.cpp</code> to the <code class="language-plaintext highlighter-rouge">project-1</code> directory CAEN, you could
+do this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>scp my-file.cpp you@login.engin.umich.edu:project-1</code></pre></figure>
+
+<p>Of course, you don’t want to type out the whole <code class="language-plaintext highlighter-rouge">you@login.engin.umich.edu</code> bit
+every time, so we can use the SSH alias you just set up:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>scp my-file.cpp caen:project-1</code></pre></figure>
+
+<aside class="aside-tip"><p>
+
+The path specified after <code>:</code> is relative to your home directory. If
+you wanted to copy a file to your home directory, you would just write <code>scp
+my-file.cpp caen:</code>, with a colon and nothing after it.
+
+</p></aside>
+
+<p>If you want to copy a whole directory, then you need to pass the <code class="language-plaintext highlighter-rouge">-r</code>
+(recursive) flag, just like with <code class="language-plaintext highlighter-rouge">cp</code>. To copy <code class="language-plaintext highlighter-rouge">my-directory</code> into your
+<code class="language-plaintext highlighter-rouge">project-1</code> directory:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>scp <span class="nt">-r</span> my-directory caen:project-1</code></pre></figure>
+
+<h2 id="downloading-files-from-caen">Downloading files from CAEN</h2>
+
+<p>Just put the arguments to <code class="language-plaintext highlighter-rouge">scp</code> in the reverse order to download from CAEN:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>scp <span class="nt">-r</span> caen:project-1/my-directory my-directory</code></pre></figure>
+
+<h2 id="mounting-caen-as-if-it-were-a-local-drive">Mounting CAEN as if it were a local drive</h2>
+
+<p>You can use <code class="language-plaintext highlighter-rouge">sshfs</code> (“SSH filesystem”) to access files over SSH
+as if they were on your local computer.</p>
+
+<p>Linux users: just <code class="language-plaintext highlighter-rouge">apt-get install sshfs</code> or whatever it is you usually do.</p>
+
+<p>OS X users:</p>
+
+<ol>
+  <li>
+    <p>Ensure you have Homebrew installed. You can get it from
+<a href="http://brew.sh">brew.sh</a>.</p>
+  </li>
+  <li>
+    <p>Make sure Homebrew is up-to-date. Run <code class="language-plaintext highlighter-rouge">brew update</code> in your terminal.</p>
+  </li>
+  <li>
+    <p>Install <code class="language-plaintext highlighter-rouge">osxfuse</code> by running this command in your terminal: <code class="language-plaintext highlighter-rouge">brew install
+osxfuse</code>.  Homebrew should install it for you and give you output like
+this:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The new osxfuse file system bundle needs to be installed by the root user:
+
+  sudo /bin/cp -RfX something...
+  sudo chmod +s something...
+</code></pre></div>    </div>
+
+    <aside class="aside-warning"><p>
+
+    Newer versions of OS X may throw this error:
+
+    <pre>Building this formula from source isn't possible due to OS X Yosemite and above's strict unsigned kext ban.
+You can install with Homebrew Cask:
+brew install Caskroom/cask/osxfuse
+Error: Unsatisfied requirements failed this build.</pre>
+
+    If this happens, just run <code>brew install Caskroom/cask/osxfuse</code>.
+
+</p></aside>
+  </li>
+  <li>
+    <p>The output from <code class="language-plaintext highlighter-rouge">brew</code> contained two commands, as seen above. Copy and paste
+them each of them into your terminal and run them.</p>
+  </li>
+  <li>
+    <p>Install <code class="language-plaintext highlighter-rouge">sshfs</code> by running <code class="language-plaintext highlighter-rouge">brew install homebrew/fuse/sshfs</code>.</p>
+  </li>
+</ol>
+
+<p>Now you can use <code class="language-plaintext highlighter-rouge">sshfs</code>. Open up the terminal and navigate to the place where
+you want to make the virtual folder show up. For example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd ~/Desktop
+</code></pre></div></div>
+
+<p>Make a new folder to hold the contents of your CAEN directory. (You can use any
+empty folder, so feel free to reuse this folder between uses, or use a
+differently-named folder.)</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ mkdir caen-drive
+</code></pre></div></div>
+
+<p>Then mount CAEN using this command. This will prompt you for your CAEN password.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sshfs caen: caen-drive
+</code></pre></div></div>
+
+<aside class="aside-warning"><p>
+
+This assumes you have an SSH alias called <code>caen</code>. Just like with
+<code>scp</code>, you'll use the colon syntax to specify a remote directory. In
+this case, we want to mount our home directory, so there's nothing after the
+colon. However, you cannot omit the colon.
+
+</p></aside>
+
+<aside class="aside-warning"><p>
+
+You may get a warning about kext and filesystems not being signed or so on. You
+can safely ignore such warnings.
+
+</p></aside>
+
+<p>Now you should be able to browse that folder and see the contents of your CAEN
+home directory. When you’re done, you can disconnect with this command:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ umount caen-drive
+</code></pre></div></div>
+
+<aside class="aside-warning"><p>
+
+That does not say "unmount". Read it again.
+
+</p></aside>
+
+<h3 id="caveats">Caveats</h3>
+
+<aside class="aside-critical"><ul>
+
+<li>If you lose internet connectivity, you'll be disconnected from CAEN.
+Unfortunately, this includes putting your laptop to sleep. To reconnect, you'll
+have to run <code>umount</code> and <code>sshfs</code> again.</li>
+
+<li>Object files and executables compiled on CAEN probably won't work on your
+local computer, and vice-versa. If you get weird errors about linking, try
+running <code>make clean</code> and then recompiling.</li>
+
+</ul></aside>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">How to Survive EECS 281</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Waleed Khan</li>
+          <li><a href="mailto:wkhan@umich.edu">wkhan@umich.edu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
+</p>
+
+        
+          <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
+        
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

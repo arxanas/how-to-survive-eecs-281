@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Avoiding Code Duplication</title>
+  <meta name="description" content="The biggest source of bugs in code in EECS 281, in my experience, is a lack ofclean code. “Hey, if my code works, it works — there’s no need to get allfussy ...">
+
+  <link rel="stylesheet" href="/281/css/main.css">
+  <link rel="canonical" href="http://waleedkhan.name/281/code-deduplication/">
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-53066274-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Avoiding Code Duplication</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>The biggest source of bugs in code in EECS 281, in my experience, is a lack of
+clean code. <em>“Hey, if my code works, it works — there’s no need to get all
+fussy about how I write it,”</em> you might say. It’s true that you can get full
+points on the autograder with all of your code shoved in <code class="language-plaintext highlighter-rouge">main</code>, but do you ever
+wonder about how those ‘genius’ programmers get done so quickly? They somehow
+seem to get it right the first time they write their code.</p>
+
+<p>This guide is aimed at drilling just one critical idea into your head which I
+guarantee will make you a better programmer: <em>never duplicate code</em>. One of the
+best habits you can form is to keep looking for duplicated code and
+deduplicating it.</p>
+
+<aside class="aside-info"><p>
+
+If you already don't duplicate code, great! There's no need to read this
+article. The second most important technique is to <em>use functions to
+modularize code</em> but I'm capped at one life-changing topic per article.
+
+</p></aside>
+
+<h2 id="why-you-should-care">Why you should care</h2>
+
+<p>What’s the problem with duplicating code? In short, it’s a maintenance
+nightmare: it’s hard to both fix and build upon your code. In EECS 281, there
+will be a lot of both, so it’s important that your code is accessible.</p>
+
+<p>When you duplicate code, you have a high risk of applying changes in one area
+but not its twin, leading to nefarious bugs. Sometimes you have two sections
+which are identical but shouldn’t have been. These risks can be <em>entirely
+avoided</em> by avoiding the duplication in the first place!</p>
+
+<p>When you don’t consolidate your code, the control flow of your program is hard
+to understand: when you branch, do you always run this block of code at the end
+of both the <code class="language-plaintext highlighter-rouge">if</code> branch and the <code class="language-plaintext highlighter-rouge">else</code> branch? Or is it slightly different in
+one branch? What if the different branches call out to different functions, and
+each of those functions may or may not do the same thing? It becomes much harder
+to reason about what your code will and won’t do.</p>
+
+<p>This article isn’t an exhaustive list of all the ways that code can be
+duplicated. It’s just meant to help you begin to form your deduplication habits.
+You’ll need to constantly look over your code as you write it and ask yourself
+“Are there any repeated blocks of code here? Can I rewrite it so that there
+aren’t?”</p>
+
+<h2 id="dont-repeat-expressions">Don’t repeat expressions</h2>
+
+<p>Suppose you had a point and a list of other points and you wanted to find the
+closest point in that list. Take a look at the following code and decide whether
+it’s bug-free or not:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">Point</span> <span class="n">point</span> <span class="o">=</span> <span class="n">getCurrentPoint</span><span class="p">();</span>
+<span class="n">Point</span> <span class="n">closest</span> <span class="o">=</span> <span class="n">otherPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="kt">double</span> <span class="n">closestDistance</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">pow</span><span class="p">(</span><span class="n">point</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">closest</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">pow</span><span class="p">(</span><span class="n">point</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">closest</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">Point</span> <span class="n">other</span> <span class="o">:</span> <span class="n">otherPoints</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pow</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">closest</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">pow</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">closest</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">closest</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">closest</span> <span class="o">=</span> <span class="n">other</span><span class="p">;</span>
+        <span class="n">closestDistance</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">pow</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">closest</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">pow</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">closest</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="n">closest</span><span class="p">;</span></code></pre></figure>
+
+<p>In the <code class="language-plaintext highlighter-rouge">closestDistance = ...</code> line, I’ve copied and pasted a <code class="language-plaintext highlighter-rouge">pow</code> call, but I
+forgot to change <code class="language-plaintext highlighter-rouge">x</code> to <code class="language-plaintext highlighter-rouge">y</code>. We can make it so that this bug can’t possibly
+happen by defining a helper function:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">double</span> <span class="nf">distance</span><span class="p">(</span><span class="n">Point</span> <span class="n">first</span><span class="p">,</span> <span class="n">Point</span> <span class="n">second</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">pow</span><span class="p">(</span><span class="n">first</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">second</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">pow</span><span class="p">(</span><span class="n">first</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">second</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="c1">// ...</span>
+
+<span class="n">Point</span> <span class="n">point</span> <span class="o">=</span> <span class="n">getCurrentPoint</span><span class="p">();</span>
+<span class="n">Point</span> <span class="n">closest</span> <span class="o">=</span> <span class="n">otherPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="kt">double</span> <span class="n">closestDistance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">closest</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">Point</span> <span class="n">other</span> <span class="o">:</span> <span class="n">otherPoints</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">closestDistance</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">closest</span> <span class="o">=</span> <span class="n">other</span><span class="p">;</span>
+        <span class="n">closestDistance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">other</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="n">closest</span><span class="p">;</span></code></pre></figure>
+
+<p>If there’s a lot of code in the <code class="language-plaintext highlighter-rouge">if</code>-block, I might change the <code class="language-plaintext highlighter-rouge">distance</code> call
+in the condition and forget that there’s a call in the body as well. To prevent
+this from happening, we can introduce a temporary variable to hold the distance.
+By naming the variable, it also makes the code clearer:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">Point</span> <span class="n">point</span> <span class="o">=</span> <span class="n">getCurrentPoint</span><span class="p">();</span>
+<span class="n">Point</span> <span class="n">closest</span> <span class="o">=</span> <span class="n">otherPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="kt">double</span> <span class="n">closestDistance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">closest</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">Point</span> <span class="n">other</span> <span class="o">:</span> <span class="n">otherPoints</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">currentDistance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">other</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">currentDistance</span> <span class="o">&lt;</span> <span class="n">closestDistance</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">closest</span> <span class="o">=</span> <span class="n">other</span><span class="p">;</span>
+        <span class="n">closestDistance</span> <span class="o">=</span> <span class="n">currentDistance</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="n">closest</span><span class="p">;</span></code></pre></figure>
+
+<p>In practice, repeated expressions may not be as obvious as in this example. As a
+simple rule of thumb, if you have an expression in multiple places which has
+more than one term in it, you’ll want to use a helper function or temporary
+variable.</p>
+
+<aside class="aside-info"><p>
+
+Expression repetition can actually be a bug in some programs, even if it's typed
+correctly everywhere it's used. For example, if you read the current time, then
+do something else, then read the current time again, the clock may have
+advanced, causing you to unexpectedly get different times. It can also be a bit
+inefficient to recalculate an expensive calculation many times, like the
+<code>sqrt</code> call in the distance calculation above.
+
+</p></aside>
+
+<h2 id="dont-repeat-variables">Don’t repeat variables</h2>
+
+<p>Sometimes you want to reference the same variable over and over again. In that
+case, use a reference for convenience.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="c1">// Multidimensional vector.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;&gt;&gt;</span> <span class="n">myVector</span><span class="p">;</span>
+<span class="n">populateVector</span><span class="p">(</span><span class="n">myVector</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">someValue</span> <span class="o">+=</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">].</span><span class="n">doSomething</span><span class="p">();</span>
+
+            <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">].</span><span class="n">doSomethingElse</span><span class="p">(</span><span class="n">someValue</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">].</span><span class="n">someCondition</span><span class="p">())</span> <span class="p">{</span>
+                <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">].</span><span class="n">doSomethingConditionally</span><span class="p">();</span>
+            <span class="p">}</span>
+
+            <span class="c1">// And so on for many, many lines of code...</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>You can see that we repeat <code class="language-plaintext highlighter-rouge">myVector[i][j][k]</code> many times. If the indices are
+more complicated, it’s really painful to keep typing it out. (In fact, this is
+one of the already-legible cases; indices can often be much more verbose when
+using a <code class="language-plaintext highlighter-rouge">map</code> later in the course.)</p>
+
+<p>The easiest way to avoid this duplication is to assign the element to a
+reference. This way, we can use and modify the variable without having to type
+out the whole name.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">auto</span><span class="o">&amp;</span> <span class="n">myValue</span> <span class="o">=</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">];</span>
+
+            <span class="n">someValue</span> <span class="o">+=</span> <span class="n">myValue</span><span class="p">.</span><span class="n">doSomething</span><span class="p">();</span>
+
+            <span class="n">myValue</span><span class="p">.</span><span class="n">doSomethingElse</span><span class="p">(</span><span class="n">someValue</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">myValue</span><span class="p">.</span><span class="n">someCondition</span><span class="p">())</span> <span class="p">{</span>
+                <span class="n">myValue</span><span class="p">.</span><span class="n">doSomethingConditionally</span><span class="p">();</span>
+            <span class="p">}</span>
+
+            <span class="c1">// And so on for many, many lines of code...</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Lets say you switch to a two-dimensional vector later. It’s very easy to modify
+the second version: just change the <code class="language-plaintext highlighter-rouge">myValue</code> definition and your code compiles,
+while in the first you have to go and change every usage site – and you might
+make a subtle typo in one.</p>
+
+<p>Additionally, if you know that <code class="language-plaintext highlighter-rouge">myValue</code> won’t be modified, mark it as <code class="language-plaintext highlighter-rouge">const</code>:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">myValue</span> <span class="o">=</span> <span class="n">myVector</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">];</span>
+
+            <span class="n">someValue</span> <span class="o">+=</span> <span class="n">myValue</span><span class="p">.</span><span class="n">doSomething</span><span class="p">();</span>
+
+            <span class="n">myValue</span><span class="p">.</span><span class="n">doSomethingElse</span><span class="p">(</span><span class="n">someValue</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">myValue</span><span class="p">.</span><span class="n">someCondition</span><span class="p">())</span> <span class="p">{</span>
+                <span class="n">myValue</span><span class="p">.</span><span class="n">doSomethingConditionally</span><span class="p">();</span>
+            <span class="p">}</span>
+
+            <span class="c1">// And so on for many, many lines of code...</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This can save you quite a bit of headache because it will prevent you from
+accidentally modifying the element where you didn’t mean to.</p>
+
+<h2 id="an-example-handling-different-modes">An example: handling different modes</h2>
+
+<p>A lot of the projects have several different input or output modes. The worst
+way to handle them is to write the same exact code twice, in two different
+<code class="language-plaintext highlighter-rouge">if</code>-branches. Suppose we have a program that reads a list of integers and
+prints them out in reverse order. Additionally, suppose that in <code class="language-plaintext highlighter-rouge">MODE_EVEN</code>, we
+only print the even numbers, and in <code class="language-plaintext highlighter-rouge">MODE_ODD</code>, we only print the odd ones.
+Here’s one way which it could be done:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mode</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">mode</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s">"MODE_EVEN"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">number</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">number</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<aside class="aside-info"><p>
+
+I had a bug when I wrote this code! I started from <code>numbers.size()</code>
+instead of <code>numbers.size() - 1</code>, and I had to change it in two
+places. If this was a larger program, I might not have remembered to change the
+other place.
+
+Imagine if I submitted it to the autograder and I failed half the test cases. I
+might not even think to look for this bug, since I thought I had fixed it. You
+don't want to spend hours searching for a bug that you thought you had
+addressed.
+
+</p></aside>
+
+<p>You can see that we repeat a whole segment of code, and the only difference is
+one innocuous little <code class="language-plaintext highlighter-rouge">1</code> versus <code class="language-plaintext highlighter-rouge">0</code>. What’s the best way to deal with this? The
+first step is to identify which parts of the code are the exact same and which
+aren’t. For example, the input routine is exactly the same for both. Let’s move
+it out of the <code class="language-plaintext highlighter-rouge">if</code>-block:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mode</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">mode</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">number</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s">"MODE_EVEN"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Now half of the repeated code is deduplicated. But the iteration over <code class="language-plaintext highlighter-rouge">numbers</code>
+is still repeated. Let’s hoist the <code class="language-plaintext highlighter-rouge">for</code>-loop out of the <code class="language-plaintext highlighter-rouge">if</code>-block:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mode</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">mode</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">number</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s">"MODE_EVEN"</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Now we don’t have the error-prone <code class="language-plaintext highlighter-rouge">for</code>-loop repeated, but we still have most of
+the modulus check and the entire output routine duplicated. Since the only thing
+which differs is the right-hand side of the equality check, we can put that into
+a variable:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mode</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">mode</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">number</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">remainder</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s">"MODE_EVEN"</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">remainder</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">remainder</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">remainder</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<aside class="aside-warning"><p>
+
+We can't say this:
+
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s">"MODE_EVEN"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">remainder</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">remainder</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+
+The <code>remainder</code> declaration won't be visible outside the
+<code>if</code>-branch, so we won't be able to use it in the following lines.
+
+</p></aside>
+
+<p>Much better! Now all of the identical logic is written only once, and we’ve
+pulled out the differing part into a single variable.</p>
+
+<p>The only thing left to do is calculate the remainder outside the <code class="language-plaintext highlighter-rouge">for</code>-loop. It
+doesn’t change between iterations, so it doesn’t make sense to recalculate it
+every time.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mode</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">mode</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">number</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">remainder</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s">"MODE_EVEN"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">remainder</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">remainder</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">remainder</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>When making changes to the code, we can now rest assured that changing the iteration bounds or the printing conditions will correctly update every mode.</p>
+
+<aside class="aside-tip"><p>
+
+
+In the projects, the input routines and the actual solution will be longer than a few lines of code. You'll want to split unrelated bits of code into functions. One arrangement for this example is to have these functions:
+
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="c1">// Returns a vector of all the numbers given on standard input.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">readNumbers</span><span class="p">();</span>
+
+<span class="c1">// Prints the numbers in 'numbers' in reverse if they have the given remainder.</span>
+<span class="kt">void</span> <span class="nf">printNumbersInReverse</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">numbers</span><span class="p">,</span> <span class="kt">int</span> <span class="n">remainder</span><span class="p">);</span></code></pre></figure>
+
+
+</p></aside>
+
+<aside class="aside-info"><p>
+
+Iterating over a vector in reverse is bug-prone, since the bounds are unusual.
+(If you're not careful, it's even possible to throw your program into an
+infinite loop if you use <code>unsigned int</code>s as the loop condition.)
+
+The best way to actually do it would be to use a reverse iterator. Here's one
+way:
+
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">rbegin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">rend</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">it</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">remainder</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+
+</p></aside>
+
+<h2 id="dont-pass-around-tens-of-parameters">Don’t pass around tens of parameters</h2>
+
+<p>If you’re coding cleanly, you’ll have many relatively small, self-contained
+functions that do one thing. One problem with this approach is that you might
+have to pass in many parameters to each of these functions so that it has all of
+the data it needs.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="nf">doSomething1</span><span class="p">(</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;&amp;</span> <span class="n">myObjects</span><span class="p">,</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">myValues</span><span class="p">,</span>
+    <span class="kt">int</span> <span class="n">someParameter</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">doSomething2</span><span class="p">(</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;&amp;</span> <span class="n">myObjects</span><span class="p">,</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">myValues</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span> <span class="n">someOtherParameter</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>You can see that the first two parameters to both of these functions are the
+same. Typing out the same parameters everywhere is a headache, and you’re prone
+to bugs where you’ve switched around parameters that happen to have the same
+type.</p>
+
+<p>When we have many methods that all operate on the same set of data, it’s a good
+idea to package them into a class:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="c1">// Please never name any of your classes this.</span>
+<span class="k">class</span> <span class="nc">SomethingDoer</span> <span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;</span> <span class="n">myObjects</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">myValues</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="n">SomethingDoer</span><span class="p">()</span>
+        <span class="o">:</span> <span class="n">myObjects</span><span class="p">(</span><span class="cm">/* some initialization */</span><span class="p">),</span>
+          <span class="n">myValues</span><span class="p">(</span><span class="cm">/* some initialization */</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+    <span class="n">doSomething1</span><span class="p">(</span><span class="kt">int</span> <span class="n">someParameter</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">myObjects</span><span class="p">.</span><span class="n">front</span><span class="p">().</span><span class="n">doSomething3</span><span class="p">();</span>
+        <span class="c1">// etc.</span>
+    <span class="p">}</span>
+
+    <span class="n">doSomething2</span><span class="p">(</span><span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span> <span class="n">someOtherParameter</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>Now all of the duplicated parameters are still accessible to each of the
+functions, and we can easily see what unique data each function requires.
+Additionally, we can’t accidentally switch around the order of parameters in a
+function call. As you progress through the projects, you’ll find you can save a
+lot of tedious typing by using classes instead of a lot of parameters.</p>
+
+<h2 id="what-next">What next?</h2>
+
+<p>By now, you hopefully have developed a little bit of rigor regarding duplicated
+code. As you write code, keep an eye out for things which could be deduplicated.
+(If you’re using copy-and-paste, there’s a good chance that you’re duplicating
+code.) If you avoid code duplication, you’ll gain a significant time advantage
+on the projects, since you won’t spend as much time looking for silly
+duplication errors – and this translates to a better final score.</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">How to Survive EECS 281</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Waleed Khan</li>
+          <li><a href="mailto:wkhan@umich.edu">wkhan@umich.edu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
+</p>
+
+        
+          <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
+        
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

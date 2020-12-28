@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Code-Completion in Sublime Text</title>
+  <meta name="description" content="This is a guest post from Alex Chojnacki (thealex@umich.edu), who tookEECS 281 with me, and has worked extensively with a Sublime Text developmentenvironment...">
+
+  <link rel="stylesheet" href="/281/css/main.css">
+  <link rel="canonical" href="http://waleedkhan.name/281/sublime-clang/">
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-53066274-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Code-Completion in Sublime Text</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>This is a guest post from Alex Chojnacki (<a href="mailto:thealex@umich.edu">thealex@umich.edu</a>), who took
+EECS 281 with me, and has worked extensively with a Sublime Text development
+environment for 281.</p>
+
+<p>We use SublimeClang to get compiler warnings and errors directly in Sublime
+Text, even if we’re compiling in CAEN. You’ll want to use this in conjunction
+with some method to edit remotely, such as <a href="/281/dealing-with-caen/">SSHFS</a> or <a href="http://rdxiang.github.io/programming/sublime-sftp/">SFTP</a>.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#prerequisites" id="markdown-toc-prerequisites">Prerequisites</a></li>
+  <li><a href="#installing-gcc" id="markdown-toc-installing-gcc">Installing GCC</a></li>
+  <li><a href="#configuring-sublime-text" id="markdown-toc-configuring-sublime-text">Configuring Sublime Text</a></li>
+</ul>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>This guide is for Mac OS X users only.</p>
+
+<p>Here’s a workflow for those of us who love Sublime, but miss the code completion
+elements of IDEs. The solution is a plugin and a short list of dependencies.</p>
+
+<p>Things you will need (install in this order):</p>
+
+<ul>
+  <li>
+    <p>Sublime Text 2 (this will not work for Sublime Text 3):
+<a href="http://www.sublimetext.com/2">http://www.sublimetext.com/2</a></p>
+  </li>
+  <li>
+    <p>Package Control for Sublime Text 2 (everyone should get this if they use
+Sublime):
+<a href="https://packagecontrol.io/installation#st2">https://packagecontrol.io/installation#st2</a></p>
+  </li>
+  <li>
+    <p>Homebrew: <a href="http://brew.sh/">http://brew.sh/</a></p>
+  </li>
+  <li>
+    <p>SublimeClang: In Package Control, search “SublimeClang” and select the
+package (it should be the only one named this — if it is not, you may be
+using Sublime Text 3).</p>
+  </li>
+</ul>
+
+<h2 id="installing-gcc">Installing GCC</h2>
+
+<p>To use SublimeClang, we’ll need a custom version of the GNU Compiler Collection
+(or “GCC”) supporting C++11. (We’ll use GCC 4.9.) First type <code class="language-plaintext highlighter-rouge">brew tap
+homebrew/versions</code> into the terminal and hit enter. My output looked like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+
+theProfessional$ brew tap homebrew/versions
+Cloning into '/usr/local/Library/Taps/homebrew/homebrew-versions'...
+remote: Counting objects: 2693, done.
+remote: Total 2693 (delta 0), reused 0 (delta 0)
+Receiving objects: 100% (2693/2693), 884.52 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (1562/1562), done.
+Checking connectivity... done.
+Tapped 171 formulae
+
+...
+</code></pre></div></div>
+
+<p>Easy! The next thing you want to type is <code class="language-plaintext highlighter-rouge">brew install gcc49</code>. This will install
+<code class="language-plaintext highlighter-rouge">gcc</code> 4.9.2 and a few of its dependencies. These aren’t large files, but they do
+take a while to download/install, so be prepared to keep your computer powered
+and connected to the internet.</p>
+
+<p>The following dependencies will install automatically:</p>
+
+<dl>
+  <dt><code class="language-plaintext highlighter-rouge">gmp4</code></dt>
+  <dd>2.8 minutes</dd>
+  <dt><code class="language-plaintext highlighter-rouge">mpfr2</code></dt>
+  <dd>1 minute</dd>
+  <dt><code class="language-plaintext highlighter-rouge">libmpc08</code></dt>
+  <dd>30 seconds</dd>
+  <dt><code class="language-plaintext highlighter-rouge">pkg-config</code></dt>
+  <dd>Half a second</dd>
+  <dt><code class="language-plaintext highlighter-rouge">cloog018</code></dt>
+  <dd>15 seconds.</dd>
+</dl>
+
+<p>Then, the main installation of <code class="language-plaintext highlighter-rouge">gcc49</code> will start.  This took my computer 31
+minutes.</p>
+
+<p>I list the times here just so you understand that it takes <em>some</em> time. Time
+will vary based on internet connection and how zippy your computer is. Here was
+the output at the end of the installation process:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+
+==&gt; Installing gcc49
+==&gt; Downloading http://ftpmirror.gnu.org/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
+######################################################################## 100.0%
+==&gt; Patching
+==&gt; ../configure --build=x86_64-apple-darwin14.0.0 --prefix=/usr/local/Cellar/gc
+==&gt; make bootstrap
+==&gt; make install
+🍺  /usr/local/Cellar/gcc49/4.9.2_1: 1138 files, 164M, built in 31.4 minutes
+theProfessional$ []
+
+...
+</code></pre></div></div>
+
+<h2 id="configuring-sublime-text">Configuring Sublime Text</h2>
+
+<p>We’re almost finished! After the install is done, you’ll want to try and compile
+a C++ program using your new fancy GNU compiler. I recommend compiling a simple
+“Hello World” on your desktop, but regardless of what you compile, make sure to
+use the following command to do it:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++-4.9 helloWorld.cpp -v
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">-v</code> flag will provide verbose output, allowing us to see the paths to the
+<code class="language-plaintext highlighter-rouge">gcc49</code> install’s libraries. This is important because we need to tell
+SublimeClang where to find these libraries! It will also produce a ton of other
+output that is very scary.</p>
+
+<p>Do not be alarmed by the wall of text! We will be looking for a few lines of
+text — specifically the ones between <code class="language-plaintext highlighter-rouge">#include &lt;...&gt; search starts here:</code> and
+<code class="language-plaintext highlighter-rouge">End of search list.</code></p>
+
+<p>Mine looked like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+#include &lt;...&gt; search starts here:
+/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/../../../../../../include/c++/4.9.2
+/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/../../../../../../include/c++/4.9.2/x86_64-apple-darwin14.0.0
+/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/../../../../../../include/c++/4.9.2/backward
+/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/include
+/usr/local/include
+/usr/local/Cellar/gcc49/4.9.2_1/include
+/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/include-fixed
+/usr/include
+/System/Library/Frameworks
+/Library/Frameworks
+End of include search.
+...
+</code></pre></div></div>
+
+<p>Those are the paths we need to give to SublimeClang! So after you search through
+the output in the terminal and nab these lines, you’ll want to open up Sublime
+Text 2 and navigate to the menu bar at the top. Next, click Sublime Text 2 »
+Preferences » Package Settings » SublimeClang » Settings – User.</p>
+
+<p>After clicking, you’ll be presented a blank file. This is part of what’s known
+as a JSON file, and it’s what Sublime uses to keep track of settings. Here’s
+what you need to put in it in order for SublimeClang to compile your project
+properly.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+    "options": [
+        // Any flag you would normally add in your compile command can be added here as shown. Create an unused variable and uncomment “-Wall”!
+        // "-Wall",
+        // "-Wno-unused-variable",
+
+        // Change these!
+        "-I/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/../../../../../../include/c++/4.9.2",
+        "-I/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/../../../../../../include/c++/4.9.2/x86_64-apple-darwin14.0.0",
+        "-I/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/../../../../../../include/c++/4.9.2/backward",
+        "-I/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/include",
+        "-I/usr/local/include",
+        "-I/usr/local/Cellar/gcc49/4.9.2_1/include",
+        "-I/usr/local/Cellar/gcc49/4.9.2_1/lib/gcc/4.9/gcc/x86_64-apple-darwin14.0.0/4.9.2/include-fixed",
+        "-I/usr/include",
+        "-I/System/Library/Frameworks",
+        "-I/Library/Frameworks"
+    ],
+
+    "additional_language_options": {
+        "c++": [
+            "-std=c++11"
+        ],
+        "c": [],
+        "objc": [],
+        "objc++": []
+    }
+}
+</code></pre></div></div>
+
+<p>You can see the dependencies revealed from earlier are now shown in quotes with
+an <code class="language-plaintext highlighter-rouge">-I</code> and a comma separating each one. Obviously, these are just my file
+paths. Yours could be different. The section at the bottom
+<code class="language-plaintext highlighter-rouge">additional_language_options</code> can be copied directly from this article.</p>
+
+<p>Save the settings file and close it.</p>
+
+<p>We’re done with all the installation! You should be able to open your
+<code class="language-plaintext highlighter-rouge">helloWorld.cpp</code> from earlier and add something incorrect. Save the file
+(<kbd>Cmd+s</kbd>) and watch the errors pop up in the console below! Taking the
+semicolon off the end or using a vector without including <code class="language-plaintext highlighter-rouge">&lt;vector&gt;</code> should be
+enough to throw an error.</p>
+
+<p><a href="/281/assets/posts/sublime-clang/exampleError.png"><img src="/281/assets/posts/sublime-clang/exampleError.png" alt="Compile error showing in Sublime Text." title="Compile error showing in Sublime Text." /></a></p>
+
+<p>This means that you can open projects with Sublime Text 2 and have them link and
+compile correctly — allowing you access to autocompletion for the entire
+standard library, as well as anything you have in other included files!</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">How to Survive EECS 281</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Waleed Khan</li>
+          <li><a href="mailto:wkhan@umich.edu">wkhan@umich.edu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
+</p>
+
+        
+          <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
+        
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

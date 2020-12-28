@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Terminal Tips and Tricks</title>
+  <meta name="description" content="You probably spend a lot of time on CAEN, or SSHed into CAEN, or working on aterminal on your local machine. It’s probably worth learning a few keyboardshort...">
+
+  <link rel="stylesheet" href="/281/css/main.css">
+  <link rel="canonical" href="http://waleedkhan.name/281/terminal-tips-and-tricks/">
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-53066274-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Terminal Tips and Tricks</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>You probably spend a lot of time on CAEN, or SSHed into CAEN, or working on a
+terminal on your local machine. It’s probably worth learning a few keyboard
+shortcuts so that you can spend less time fiddling with your terminal and more
+time programming.</p>
+
+<p>Some terminology: the <em>shell</em> is the program that you use to interact with
+programs on CAEN and the files in your home directory. It’s often used
+interchangeably with terms like <em>terminal</em>, <em>command line</em>, and <em>command
+prompt</em>.</p>
+
+<aside class="aside-info">
+
+<p>Strictly speaking, <em>terminal</em> isn't synonymous with <em>shell</em>.
+"Terminal" is actually short for "terminal emulator", a piece of software which
+draws all of the characters on your screen, handles escape sequences, and so on.
+It's an emulator because it mimics the old machines which used to do all this,
+such as the VT100. So you use a terminal emulator to interact with your
+shell.</p>
+
+</aside>
+
+<p>The default shell on CAEN is <code class="language-plaintext highlighter-rouge">bash</code>. In fact, it’s the default shell on many
+systems, such as OS X and many breeds of Linux. There are other shells; many
+people swear by <code class="language-plaintext highlighter-rouge">zsh</code>, so feel free to try another one out. The tips listed here
+are compatible with both <code class="language-plaintext highlighter-rouge">bash</code> and <code class="language-plaintext highlighter-rouge">zsh</code>, and probably other shells as well.</p>
+
+<p>You don’t need to read this document from beginning to end. Scan through the
+headings and look at any appealing sections. If you had to read only one thing,
+it should be <a href="#tab-completion">tab-completion</a>.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#keyboard-shortcuts" id="markdown-toc-keyboard-shortcuts">Keyboard shortcuts</a>    <ul>
+      <li><a href="#tab-completion" id="markdown-toc-tab-completion">Tab-completion</a></li>
+      <li><a href="#searching-through-history" id="markdown-toc-searching-through-history">Searching through history</a></li>
+      <li><a href="#text-manipulation" id="markdown-toc-text-manipulation">Text manipulation</a></li>
+      <li><a href="#screen-manipulation" id="markdown-toc-screen-manipulation">Screen manipulation</a></li>
+    </ul>
+  </li>
+  <li><a href="#scrolling-through-program-output" id="markdown-toc-scrolling-through-program-output">Scrolling through program output</a>    <ul>
+      <li><a href="#viewing-files" id="markdown-toc-viewing-files">Viewing files</a></li>
+      <li><a href="#viewing-command-output" id="markdown-toc-viewing-command-output">Viewing command output</a></li>
+    </ul>
+  </li>
+  <li><a href="#showing-file-differences" id="markdown-toc-showing-file-differences">Showing file differences</a></li>
+  <li><a href="#multiple-terminals-at-once" id="markdown-toc-multiple-terminals-at-once">Multiple terminals at once</a>    <ul>
+      <li><a href="#using-windows" id="markdown-toc-using-windows">Using windows</a></li>
+      <li><a href="#using-panes" id="markdown-toc-using-panes">Using panes</a></li>
+      <li><a href="#binding-keys" id="markdown-toc-binding-keys">Binding keys</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
+
+<p><code class="language-plaintext highlighter-rouge">bash</code> uses Emacs keybindings by default, so if you happen to use Emacs then you
+probably already know what to do.</p>
+
+<h3 id="tab-completion">Tab-completion</h3>
+
+<p>You can tab-complete file and directory names in <code class="language-plaintext highlighter-rouge">bash</code>. For example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd e&lt;tab&gt;
+$ ./p&lt;tab&gt; &lt; te&lt;tab&gt;-1&lt;tab&gt;
+</code></pre></div></div>
+
+<p>might be equivalent to</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd eecs281
+$ ./program &lt; test-1.txt
+</code></pre></div></div>
+
+<p>Tab-completion saves time and helps you to avoid spelling mistakes.</p>
+
+<p>If a filename is ambiguous, you may see a listing of filenames, like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd f&lt;tab&gt;
+foo1/  foo2/
+</code></pre></div></div>
+
+<p>You can continue typing the filename and then press tab again to fully complete
+the filename.</p>
+
+<h3 id="searching-through-history">Searching through history</h3>
+
+<p>Everyone who’s used a shell has at some point in their life spammed the
+<kbd>up</kbd>-key to find their last <code class="language-plaintext highlighter-rouge">g++</code> command, or last program invocation,
+or whatever else kids do nowadays on their terminals. Fortunately, <code class="language-plaintext highlighter-rouge">bash</code> has a
+command for exactly this. At your terminal prompt, type <kbd>Ctrl-R</kbd>. It
+should look like this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="o">(</span>reverse-i-search<span class="o">)</span><span class="sb">`</span><span class="s1">':</span></code></pre></figure>
+
+<p>Then start typing. For example, if I type <code class="language-plaintext highlighter-rouge">g++</code> it might look like this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="o">(</span>reverse-i-search<span class="o">)</span><span class="sb">`</span>g++<span class="s1">': g++ main.cpp</span></code></pre></figure>
+
+<p>The thing after the colon is the first match. Tap <kbd>Ctrl-R</kbd> again to see
+the match before that, and so on.</p>
+
+<p>When you find the command you want, press <kbd>Enter</kbd> to run it. You can
+also edit the command before running it by pressing an arrow key or text
+manipulation key (see the next section).</p>
+
+<h3 id="text-manipulation">Text manipulation</h3>
+
+<p>Type <kbd>Ctrl-W</kbd> to delete the word before the cursor. Type
+<kbd>Ctrl-A</kbd> to go to the beginning of the line (handy if you forgot a
+<code class="language-plaintext highlighter-rouge">sudo</code> or a <code class="language-plaintext highlighter-rouge">./</code>), and <kbd>Ctrl-E</kbd> to go to the end of a line.</p>
+
+<aside class="aside-tip"><p>
+
+Again, these are just Emacs keybindings. If you learn any more, you can probably
+apply them to <code>bash</code>.
+
+</p></aside>
+
+<h3 id="screen-manipulation">Screen manipulation</h3>
+
+<p>To exit your terminal, you can type <kbd>Ctrl-D</kbd> to send <code class="language-plaintext highlighter-rouge">EOF</code>
+(end-of-file). You can also do this anywhere else you want to signify the end of
+a file. One useful place is when you’re done typing things into <code class="language-plaintext highlighter-rouge">stdin</code>.</p>
+
+<p>Instead of pressing <kbd>Enter</kbd> many times or running the <code class="language-plaintext highlighter-rouge">clear</code> command,
+you can just type <kbd>Ctrl-L</kbd> to clear the screen. (I personally remember
+it because <kbd>Ctrl-C</kbd> for “clear” is taken, so we use the next letter in
+the alphabet.) If you do this, you might remark that it’s hard to scroll up to
+the beginning of your compiler output — see the following section on pagers
+for dealing with that.</p>
+
+<h2 id="scrolling-through-program-output">Scrolling through program output</h2>
+
+<p>Sometimes, commands produce a lot of output, and it’s a pain to scroll through
+it all. We can use a program called a <em>pager</em> to peruse it at our leisure. One
+ubiquitous pager is <code class="language-plaintext highlighter-rouge">less</code>.</p>
+
+<h3 id="viewing-files">Viewing files</h3>
+
+<p>To view the output of a file with <code class="language-plaintext highlighter-rouge">less</code>, invoke <code class="language-plaintext highlighter-rouge">less</code> with the filename:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>less my-file.txt</code></pre></figure>
+
+<p>You’ll get output like this. The colon at the bottom is for <code class="language-plaintext highlighter-rouge">less</code>’s status
+line.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>You probably spend a lot of time on CAEN, or SSHed into CAEN, or working on a
+terminal on your local machine. It's probably worth learning a few keyboard
+shortcuts so that you can spend less time fiddling with your terminal and more
+time programming.
+
+First, some terminology: the *shell* is the program that you use to interact
+with programs on CAEN and the files in your home directory. It's often used
+interchangeably with terms like *terminal*, *command line*, and *command
+prompt*.
+
+&lt;aside class="aside-info"&gt;
+:
+</code></pre></div></div>
+
+<p><strong>Scrolling</strong>: Use <kbd>up</kbd> and <kbd>down</kbd>. To scroll a page at a
+time, use <kbd>PgUp</kbd> and <kbd>PgDn</kbd>. You can also use Vim keybindings:
+I often use <kbd>Ctrl-U</kbd> and <kbd>Ctrl-D</kbd> to go up and down
+pages.</p>
+
+<p><strong>Quitting</strong>: Type <kbd>q</kbd>.</p>
+
+<p><strong>Searching</strong>: Type <kbd>/</kbd> and then your search string to search forward.
+Use <kbd>?</kbd> to search backward instead. (Notice that <kbd>?</kbd> is just
+<kbd>Shift-/</kbd>.)</p>
+
+<p><strong>Jump to top/bottom</strong>: Type <kbd>G</kbd> to go to the bottom of the file, and
+<kbd>g</kbd> to go to the top. (These are similar to Vim keybindings. If you
+forget which is which, try both: one is bound to perform the desired action.)</p>
+
+<h3 id="viewing-command-output">Viewing command output</h3>
+
+<p>If you want to view the output from your program, or the output from your
+compiler, you can pipe directly into less, instead of saving the output to a
+file and then reading it:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>./my-program | less</code></pre></figure>
+
+<p>This only forwards <code class="language-plaintext highlighter-rouge">stdout</code> to <code class="language-plaintext highlighter-rouge">less</code>. If you want to forward <code class="language-plaintext highlighter-rouge">stderr</code> as well,
+you can use the <code class="language-plaintext highlighter-rouge">|&amp;</code> operator.</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>g++ main.cpp |&amp; less</code></pre></figure>
+
+<aside class="aside-tip"><p>
+
+Compiler errors are produced on stderr, so you'll almost always want to use
+<code>|&amp;</code>.
+
+</p></aside>
+
+<p>Now you can use all the <code class="language-plaintext highlighter-rouge">less</code> commands from the previous section to scroll and
+search through your output.</p>
+
+<aside class="aside-warning"><p>
+
+The <code>|&amp;</code> operator is a <code>bash</code>-ism. It may not work in all
+shells.
+
+</p></aside>
+
+<h2 id="showing-file-differences">Showing file differences</h2>
+
+<p>If you want to run tests and show differences automatically, take a look at
+<a href="/281/281/painless-automated-testing/">Painless Automated Testing</a>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">diff</code> command takes two files and tells you how they’re different. For
+example:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>diff file-1 file-2
+3c3
+&lt; Different line 1
+<span class="nt">---</span>
+<span class="o">&gt;</span> Different line 2</code></pre></figure>
+
+<p>If there’s a lot of changes, you might want to pass the output from <code class="language-plaintext highlighter-rouge">diff</code> into
+<code class="language-plaintext highlighter-rouge">less</code>, as specified above.</p>
+
+<p>Better still, you can use the <code class="language-plaintext highlighter-rouge">vimdiff</code> command for a convenient, colorized
+side-by-side diff:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>vimdiff file-1 file-2</code></pre></figure>
+
+<p>You can use all of the <code class="language-plaintext highlighter-rouge">less</code> keybindings you learned above, except that to
+quit, you need to type <code class="language-plaintext highlighter-rouge">:qall</code>. You can also use any other Vim keybindings you
+know, since this is actually Vim.</p>
+
+<p><a href="/281/assets/posts/terminal-tips-and-tricks/vimdiff.png"><img src="/281/assets/posts/terminal-tips-and-tricks/vimdiff.png" alt="Highlighting differences in vim." title="Highlighting differences in vim." /></a></p>
+
+<h2 id="multiple-terminals-at-once">Multiple terminals at once</h2>
+
+<p>Many people are okay with having multiple terminal windows open, so this section
+won’t be useful to them. But if you hate having to SSH into CAEN for every new
+terminal window you open, or you just want to look cool, you can use a <em>terminal
+multiplexer</em>. A terminal multiplexer will let you have multiple sessions at
+once. CAEN has <code class="language-plaintext highlighter-rouge">screen</code> and <code class="language-plaintext highlighter-rouge">tmux</code> installed; we’ll talk about <code class="language-plaintext highlighter-rouge">tmux</code> since it’s
+mostly better.</p>
+
+<h3 id="using-windows">Using windows</h3>
+
+<p>Launch <code class="language-plaintext highlighter-rouge">tmux</code> in your terminal on CAEN. You should get a new, blank screen,
+except with a status line at the bottom. (It’ll say something like <code class="language-plaintext highlighter-rouge">0:bash</code>.)</p>
+
+<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-new-screen.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-new-screen.png" alt="A new tmux session." title="A new tmux session." /></a></p>
+
+<p>Run a simple command, like <code class="language-plaintext highlighter-rouge">echo hi</code>, and see that it works the same as your
+regular terminal.</p>
+
+<p><strong>Getting help</strong>: Run <kbd>Ctrl-b ?</kbd> (which means <kbd>Ctrl-b</kbd>, then
+lift up your fingers, then <kbd>?</kbd>) to get a list of current keybindings.
+Press <kbd>q</kbd> to exit that screen.</p>
+
+<p><strong>Creating windows</strong>: Use <kbd>Ctrl-b c</kbd>. (Make sure to stop pressing
+<kbd>Ctrl</kbd> before pressing <kbd>c</kbd>.) This creates a new, empty
+terminal window, which you can run different commands in. You can see all the
+open windows in the statusline at the bottom.</p>
+
+<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-new-window.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-new-window.png" alt="Two tmux windows are open at once." title="Two tmux windows are open at once." /></a></p>
+
+<p><strong>Switching windows</strong>: Use <kbd>Ctrl-b n</kbd> and <kbd>Ctrl-b p</kbd> (for
+<em>next</em> and <em>previous</em>). You can jump directly to a window with <kbd>Ctrl-b</kbd>
+followed by the index of the window (for example, <kbd>Ctrl-b 0</kbd> to jump to
+the window labelled 0).</p>
+
+<aside class="aside-tip"><p>
+
+Window numbering is zero-indexed, which is "intuitive", but it also means that
+you have to reach all the way over to the zero key to select the first window.
+You can set the <code>base-index</code> option to <code>1</code> <a href="#binding-keys">in your <code>.tmux.conf</code> file</a> to make life a bit
+easier on your fingers.
+
+</p></aside>
+
+<p><strong>Destroying windows</strong>: If you want to close a window, just exit the shell. You
+can do this with the <code class="language-plaintext highlighter-rouge">exit</code> command, or you can type <kbd>Ctrl-d</kbd> at an
+empty prompt. When all windows are closed, <code class="language-plaintext highlighter-rouge">tmux</code> will exit.</p>
+
+<p><strong>Examining output</strong>: If you want to scroll up and see old output, you can type
+<kbd>Ctrl-b PgUp</kbd> and <kbd>Ctrl-b PgDn</kbd>. You can search forward
+through old output with <kbd>Ctrl-b /</kbd> and backwards with <kbd>Ctrl-b
+?</kbd>. This can be convenient if you forgot to <a href="#viewing-files">pipe your output into a pager
+or a file</a>.</p>
+
+<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-scroll-up.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-scroll-up.png" alt="Scroll through old output." title="Scroll through old output." /></a></p>
+
+<h3 id="using-panes">Using panes</h3>
+
+<p>You can also show more than one shell on the screen at once, by using “panes”.
+Type <kbd>Ctrl-b "</kbd> to split the current window into an upper and lower
+pane. Type <kbd>Ctrl-b %</kbd> to split the current window into a left and right
+pane.</p>
+
+<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-multiple-panes.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-multiple-panes.png" alt="Multiple tmux panes open at once." title="Multiple tmux panes open at once." /></a></p>
+
+<p>To switch between panes, use <kbd>Ctrl-b</kbd> followed by an arrow key.</p>
+
+<p>Panes will be destroyed when the shell exits, just the same as windows.</p>
+
+<h3 id="binding-keys">Binding keys</h3>
+
+<p>To see all of the active keyboard bindings available for <code class="language-plaintext highlighter-rouge">tmux</code>, run <kbd>Ctrl-b
+?</kbd>.</p>
+
+<p>You can rebind all of these actions, which is fortunate since <kbd>Ctrl-b</kbd>
+is not very ergonomic. Create the file <code class="language-plaintext highlighter-rouge">~/.tmux.conf</code> if it doesn’t already
+exist, and add line <code class="language-plaintext highlighter-rouge">set-option -g prefix C-a</code>. This sets your “prefix” key,
+which is <kbd>Ctrl-b</kbd> by default, to be <kbd>Ctrl-a</kbd>. You can set it
+to whatever you want, of course.</p>
+
+<p><code class="language-plaintext highlighter-rouge">tmux</code> is quite customizable. Take a look at the internet, the <code class="language-plaintext highlighter-rouge">man</code>-pages, or
+some example <code class="language-plaintext highlighter-rouge">.tmux.conf</code> files if you want more inspiration. Here’s mine,
+although I wouldn’t recommend that you copy it verbatim:
+<a href="https://github.com/arxanas/dotfiles/blob/master/.tmux.conf">https://github.com/arxanas/dotfiles/blob/master/.tmux.conf</a>.</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">How to Survive EECS 281</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Waleed Khan</li>
+          <li><a href="mailto:wkhan@umich.edu">wkhan@umich.edu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
+</p>
+
+        
+          <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
+        
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

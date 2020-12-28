@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>What EECS 183 and 280 didn't mention</title>
+  <meta name="description" content="There’s a set of common coding and testing mistakes that incoming students make.You can save yourself a lot of headache by reading about them now, rather tha...">
+
+  <link rel="stylesheet" href="/281/css/main.css">
+  <link rel="canonical" href="http://waleedkhan.name/281/from-eecs-183-and-280/">
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-53066274-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">What EECS 183 and 280 didn't mention</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>There’s a set of common coding and testing mistakes that incoming students make.
+You can save yourself a lot of headache by reading about them now, rather than
+being confused later.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#coding" id="markdown-toc-coding">Coding</a>    <ul>
+      <li><a href="#exiting-the-program" id="markdown-toc-exiting-the-program">Exiting the program</a></li>
+      <li><a href="#iterators-and-auto" id="markdown-toc-iterators-and-auto">Iterators and auto</a></li>
+      <li><a href="#range-based-for-loops" id="markdown-toc-range-based-for-loops">Range-based for loops</a></li>
+      <li><a href="#using-break" id="markdown-toc-using-break">Using <code>break</code></a></li>
+      <li><a href="#reading-input" id="markdown-toc-reading-input">Reading input</a>        <ul>
+          <li><a href="#the-wrong-way-to-read-input" id="markdown-toc-the-wrong-way-to-read-input">The wrong way to read input</a></li>
+          <li><a href="#the-right-way-to-read-input" id="markdown-toc-the-right-way-to-read-input">The right way to read input</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#testing" id="markdown-toc-testing">Testing</a>    <ul>
+      <li><a href="#copying-from-the-spec" id="markdown-toc-copying-from-the-spec">Copying from the spec</a></li>
+      <li><a href="#using-windows-to-edit-files" id="markdown-toc-using-windows-to-edit-files">Using Windows to edit files</a>        <ul>
+          <li><a href="#checking-for-windows-linebreaks" id="markdown-toc-checking-for-windows-linebreaks">Checking for Windows linebreaks</a></li>
+          <li><a href="#removing-windows-linebreaks" id="markdown-toc-removing-windows-linebreaks">Removing Windows linebreaks</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="coding">Coding</h2>
+
+<h3 id="exiting-the-program">Exiting the program</h3>
+
+<p>How do you exit the program? The first idea that may come to mind is to call
+<code class="language-plaintext highlighter-rouge">exit(0)</code> (or <code class="language-plaintext highlighter-rouge">exit(1)</code>, if appropriate).</p>
+
+<p>If you call <code class="language-plaintext highlighter-rouge">exit</code>, destructors will not be run. This means that you may not
+free memory in those destructors, and the autograder may detect a memory leak.
+(For example, if you have a <code class="language-plaintext highlighter-rouge">vector</code> and call <code class="language-plaintext highlighter-rouge">exit</code>, the <code class="language-plaintext highlighter-rouge">vector</code> will not
+delete its underlying array.)</p>
+
+<p>You should structure your program in such a way that you can <code class="language-plaintext highlighter-rouge">return 0</code> from
+<code class="language-plaintext highlighter-rouge">main</code> instead, which will allow destructors to run.</p>
+
+<h3 id="iterators-and-auto">Iterators and auto</h3>
+
+<p>We encourage the use of C++14 in this class. One feature of C++14 is <code class="language-plaintext highlighter-rouge">auto</code>,
+which lets you omit types in many cases. (This feature is available since
+C++11). In particular, avoid typing out long container iterator declarations:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">myvec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+
+<span class="c1">// Don't do this!</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Explicitly typing out these declarations is tedious, difficult to refactor, and
+inevitably causes at least one student to have confusing compiler errors
+relating to modifying a member <code class="language-plaintext highlighter-rouge">vector</code> inside a <code class="language-plaintext highlighter-rouge">const</code> member function.</p>
+
+<p>Instead, write this:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">myvec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This is shorter, won’t break your code when you change the type of <code class="language-plaintext highlighter-rouge">myvec</code>, and
+will automatically handle <code class="language-plaintext highlighter-rouge">const</code> issues. See also <a href="#range-based-for-loops">range-based for
+loops</a> for an even <em>better</em> way of doing it.</p>
+
+<aside class="aside-info"><p>
+
+<code>auto</code> only works if you're doing a declaration and an assignment in
+the same line, since then the compiler can figure out the type of your variable.
+
+</p><p>
+
+If you're just trying to declare a variable with an automatically inferred type,
+and you're not assigning it, use <code>decltype</code> instead.
+
+</p></aside>
+
+<h3 id="range-based-for-loops">Range-based for loops</h3>
+
+<p>As of C++11, you can use “range-based for loop” syntax to iterate through a
+container:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">myvec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">num</span> <span class="o">:</span> <span class="n">myvec</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This automatically does the hard work of dereferencing iterators for you. Notice
+that <code class="language-plaintext highlighter-rouge">num</code> is an <code class="language-plaintext highlighter-rouge">int</code>, not an iterator. When possible, use this syntax as it is
+the shortest and easiest to read.</p>
+
+<p>Make sure to pass your for-loop variable by reference or const reference if
+applicable:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">LargeStruct</span><span class="o">&gt;</span> <span class="n">myvec</span> <span class="o">=</span> <span class="n">makeVec</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">largeStruct</span> <span class="o">:</span> <span class="n">myvec</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span></code></pre></figure>
+
+<h3 id="using-break">Using <code>break</code></h3>
+
+<p>The EECS 183 style guide forbids using <code class="language-plaintext highlighter-rouge">break</code> to terminate loops. There’s
+evidence to suggest that this doesn’t actually help code clarity: see Code
+Complete 2, Chapter 16: Controlling Loops, or the referenced study by Soloway,
+Bonar, and Ehrlich (1983), which both outline how using <code class="language-plaintext highlighter-rouge">break</code> can enhance the
+readability of your code.</p>
+
+<aside class="aside-info"><p>
+
+Is that paper by our very own Professor Soloway? Yes it is. Go read it.
+
+</p></aside>
+
+<p>If you have examined both arguments and still opt not to use <code class="language-plaintext highlighter-rouge">break</code>, which is a
+fine viewpoint to hold, you absolutely must not use hacks like this to terminate
+your loop early:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">myvec</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">condition</span><span class="p">())</span> <span class="p">{</span>
+        <span class="c1">// Break out, but don't use the `break` keyword.</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">size</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Do work...</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This is only ever worse than <code class="language-plaintext highlighter-rouge">break</code>, since it’s fragile (changing the loop
+condition can cause your code to, ehm, break) and its significance can be
+unclear. At this point, you should just use <code class="language-plaintext highlighter-rouge">break</code>.</p>
+
+<h3 id="reading-input">Reading input</h3>
+
+<p>The C++ input routines may not be the most intuitive at times. Unfortunately,
+it’s easy to accidentally produce something that works on your machine but then
+fails on the autograder.</p>
+
+<h4 id="the-wrong-way-to-read-input">The wrong way to read input</h4>
+
+<p>This code is buggy. Can you see why?</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">.</span><span class="n">good</span><span class="p">())</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">foo</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Got foo: "</span> <span class="o">&lt;&lt;</span> <span class="n">foo</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>The problem is that <code class="language-plaintext highlighter-rouge">cin.good()</code> doesn’t return <code class="language-plaintext highlighter-rouge">false</code> until an operation has
+failed. That means for the last iteration, it will try to read a value into
+<code class="language-plaintext highlighter-rouge">foo</code> and fail, without you realizing it! Running with input like <code class="language-plaintext highlighter-rouge">1 2 3</code> may
+cause output like this:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Got foo: 1
+Got foo: 2
+Got foo: 3
+Got foo: 0</code></pre></figure>
+
+<p>An extra entry has appeared! In practice, your program may do unusual things
+like duplicate the last entry or just crash. (<code class="language-plaintext highlighter-rouge">valgrind</code> didn’t even detect this
+when I tested this program.) You will likely fail most test cases on the
+autograder if you’ve done this.</p>
+
+<h4 id="the-right-way-to-read-input">The right way to read input</h4>
+
+<p>Instead, combine the loop condition and the input reading operation:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">foo</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">bar</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">baz</span><span class="p">;</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">foo</span> <span class="o">&gt;&gt;</span> <span class="n">bar</span> <span class="o">&gt;&gt;</span> <span class="n">baz</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Do something, but only if we read in all of our variables.</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This causes the body of the loop to execute only if we successfully read in all
+of our desired variables.</p>
+
+<p>If for some reason the above approach isn’t appropriate for your code, you can
+fall back on checking the status of your input stream <em>after</em> trying to read
+from it.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">foo</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">bar</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">baz</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">foo</span> <span class="o">&gt;&gt;</span> <span class="n">bar</span> <span class="o">&gt;&gt;</span> <span class="n">baz</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Finished reading input file.</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// Do something.</span>
+<span class="p">}</span></code></pre></figure>
+
+<h2 id="testing">Testing</h2>
+
+<h3 id="copying-from-the-spec">Copying from the spec</h3>
+
+<p>You must not copy strings directly from the PDF. These often contain invisible
+characters, which your program will choke on. Instead, type strings into your
+editor manually. (Or, if the test file is available on Ctools, use that.)</p>
+
+<h3 id="using-windows-to-edit-files">Using Windows to edit files</h3>
+
+<p>Windows and Unix systems use different linebreaks. Windows uses a sequence of
+two characters (carriage return followed by line feed, or CRLF), while Unix uses
+just one (line feed, or LF).</p>
+
+<p>If you are creating test files on Windows, you may accidentally create a file
+that uses Windows linebreaks, which your program may not be equipped to deal
+with. If you try to submit it to the autograder as a test case, the autograder
+may reject it for being invalid.</p>
+
+<h4 id="checking-for-windows-linebreaks">Checking for Windows linebreaks</h4>
+
+<p>To see if your test file has Windows linebreaks, you can run this command:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">grep</span> <span class="nt">-c</span> <span class="s1">'\r'</span> my-test-file.txt</code></pre></figure>
+
+<p>This counts the number of Windows linebreaks. If it produces a number greater
+than zero, then you’ll need to remove linebreaks.</p>
+
+<h4 id="removing-windows-linebreaks">Removing Windows linebreaks</h4>
+
+<p>The simplest way is to run <code class="language-plaintext highlighter-rouge">dos2unix</code> on your test file:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>dos2unix my-test-file.txt
+dos2unix: converting file foo to Unix format...</code></pre></figure>
+
+<p>If you don’t have <code class="language-plaintext highlighter-rouge">dos2unix</code> installed, you can do something like this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">'\r'</span> &lt;my-test-file.txt <span class="o">&gt;</span>my-test-file.txt.new
+<span class="nv">$ </span><span class="nb">mv </span>my-test-file.txt.new my-test-file.txt</code></pre></figure>
+
+<aside class="aside-warning"><p>
+
+You must <em>not</em> do <code>tr -d '\r' &lt;my-test-file.txt
+&gt;my-test-file.txt</code>, as this will delete the contents of your file.
+
+</p></aside>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">How to Survive EECS 281</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Waleed Khan</li>
+          <li><a href="mailto:wkhan@umich.edu">wkhan@umich.edu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
+</p>
+
+        
+          <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
+        
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

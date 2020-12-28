@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Painless Automated Testing</title>
+  <meta name="description" content="I’m guessing that you don’t like testing. Fortunately, we can make testing a loteasier to do by writing a script to do it for us. In this post, you’ll learn ...">
+
+  <link rel="stylesheet" href="/281/css/main.css">
+  <link rel="canonical" href="http://waleedkhan.name/281/painless-automated-testing/">
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-53066274-1', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Painless Automated Testing</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>I’m guessing that you don’t like testing. Fortunately, we can make testing a lot
+easier to do by writing a script to do it for us. In this post, you’ll learn how
+to write a simple shell script which will run your program with input and
+compare it against the expected output.</p>
+
+<p>This post looks long, but it’s mostly sections with one paragraph each. Just
+follow the instructions step-by-step and you’ll be set.</p>
+
+<aside class="aside-warning"><p>
+
+In the interest of brevity, this document doesn't touch upon best practices for
+shell scripting. Everything described here works just fine, but there are a lot
+of hidden pitfalls when it comes to shell scripting. Consult a style guide
+before trying to write your next operating system in <code>bash</code>
+
+</p></aside>
+
+<h2 id="whats-a-shell-script">What’s a shell script?</h2>
+
+<p>When you log into CAEN over SSH, you’re presented with a prompt where you can
+type things like <code class="language-plaintext highlighter-rouge">cd</code>, <code class="language-plaintext highlighter-rouge">cp</code>, <code class="language-plaintext highlighter-rouge">mv</code>, and so on. The program that does this for you
+is called a <em>shell</em>. Instead of typing in commands by hand, we can put them in a
+file to be executed automatically, called a <em>shell script</em>.</p>
+
+<aside class="aside-info"><p>
+
+The shell we use on CAEN is called <code>bash</code>, but it's not the only shell out there. There are many others, like <code>zsh</code>, <code>csh</code>, <code>ksh</code>... Feel free to try another one — a lot of people recommend <code>zsh</code>.
+
+</p></aside>
+
+<h2 id="writing-our-first-shell-script">Writing our first shell script</h2>
+
+<p>Create a file called <code class="language-plaintext highlighter-rouge">helloworld.sh</code> and open it up in your editor. The <code class="language-plaintext highlighter-rouge">.sh</code> extension is the conventional extension for a shell script. Type this out in your file:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">echo</span> <span class="s2">"Hello, world!"</span></code></pre></figure>
+
+<p>Then go to your terminal and run the script using <code class="language-plaintext highlighter-rouge">bash</code>:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>bash helloworld.sh
+Hello, world!</code></pre></figure>
+
+<p>That wasn’t too hard!</p>
+
+<aside class="aside-warning"><p>
+
+Make sure <em>not</em> to type the <code>$</code> at the beginning of each line.
+We use lines beginning with <code>$</code> to denote commands that you type in,
+and lines not beginning with <code>$</code> to denote their output. You only
+have to type in commands on lines beginning with <code>$</code>.
+
+</p></aside>
+
+<h2 id="example-test-files">Example test files</h2>
+
+<p>For the sake of example, let’s say we have a program <code class="language-plaintext highlighter-rouge">adder</code> which adds up all
+the numbers given to it on standard input and prints the result to standard
+output. (This means it reads from <code class="language-plaintext highlighter-rouge">cin</code> and writes to <code class="language-plaintext highlighter-rouge">cout</code>.)</p>
+
+<p>Let’s write the first test. Create <code class="language-plaintext highlighter-rouge">test-1.input</code> with the following contents:</p>
+
+<pre><code class="language-txt">2 3 4
+</code></pre>
+
+<p>And <code class="language-plaintext highlighter-rouge">test-1.output</code>:</p>
+
+<pre><code class="language-txt">9
+</code></pre>
+
+<h2 id="writing-the-script">Writing the script</h2>
+
+<p>Now onto writing the test runner. Create <code class="language-plaintext highlighter-rouge">run_tests.sh</code>:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do</span>
+    <span class="c"># Compare program output with expected output...</span>
+<span class="k">done</span></code></pre></figure>
+
+<p>As you can see, we have a <code class="language-plaintext highlighter-rouge">for</code>-loop here. But what’s this <code class="language-plaintext highlighter-rouge">./test-*.input</code>?
+This is a type of pattern-matching statement called a <em>glob</em>. It matches all of
+the files in the current directory which start with <code class="language-plaintext highlighter-rouge">test-</code> and end with
+<code class="language-plaintext highlighter-rouge">.input</code>. For each such file, it puts the file name in the <code class="language-plaintext highlighter-rouge">$test</code> variable and
+runs the <code class="language-plaintext highlighter-rouge">for</code>-loop body. Basically, we’re iterating over a list of file names
+matching the glob pattern.</p>
+
+<aside class="aside-warning"><p>
+
+If you're familiar with regular expressions, you may recognize the
+<code>*</code> character. However, <code>*</code> does a different thing when
+globbing: it's basically equivalent to the regex <code>.*</code>.
+
+</p></aside>
+
+<aside class="aside-warning"><p>
+
+<code>bash</code> is silly: if there aren't actually any files matching the
+pattern, instead of not running your loop at all, it will run it with the
+literal string <code>./test-*.input</code>. Since you probably don't have any
+files like that in your current directory, this will be an error.
+
+Either make sure to have the files in place, or add the line <code>shopt -s
+nullglob</code> to the beginning of your script.
+
+</p></aside>
+
+<h2 id="a-brief-note-on-bash-syntax">A brief note on bash syntax</h2>
+
+<p>Some notes before we continue: in <code class="language-plaintext highlighter-rouge">bash</code>, whenever we want to read the value of
+a variable, we have to prefix it with <code class="language-plaintext highlighter-rouge">$</code>. (In the <code class="language-plaintext highlighter-rouge">for</code>-loop condition, we were
+<em>writing</em> to the variable, so we didn’t need a <code class="language-plaintext highlighter-rouge">$</code>.)</p>
+
+<p>Additionally, <code class="language-plaintext highlighter-rouge">bash</code> will automatically <em>interpolate</em> string variables. If we
+say this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">echo</span> <span class="s2">"Test name: </span><span class="nv">$test</span><span class="s2">"</span></code></pre></figure>
+
+<p>then <code class="language-plaintext highlighter-rouge">bash</code> will automatically replace <code class="language-plaintext highlighter-rouge">$test</code> with the actual contents of the
+<code class="language-plaintext highlighter-rouge">test</code> variable, so we’ll get something like <code class="language-plaintext highlighter-rouge">Test name: test-1.input</code>.</p>
+
+<h2 id="getting-the-output-file-name">Getting the output file name</h2>
+
+<p>Now that we have the input file name, we need to get the output file name. In
+short, we need to remove the <code class="language-plaintext highlighter-rouge">.input</code> extension and replace it with the
+<code class="language-plaintext highlighter-rouge">.output</code> extension.</p>
+
+<p>We can use some convenient <code class="language-plaintext highlighter-rouge">bash</code> string manipulation facilities to do this.
+Let’s declare a new variable inside the <code class="language-plaintext highlighter-rouge">for</code>-loop:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do</span>
+    <span class="c"># Right now, this just copies the contents of 'test' into the variable</span>
+    <span class="c"># called 'test_output'.</span>
+    <span class="nv">test_output</span><span class="o">=</span><span class="s2">"</span><span class="nv">$test</span><span class="s2">"</span>
+
+    <span class="c"># Do other things...</span>
+<span class="k">done</span></code></pre></figure>
+
+<p>If we want to remove a substring from the end of a string in bash, we can use
+the <code class="language-plaintext highlighter-rouge">%</code> operator:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do</span>
+    <span class="c"># So the contents of test_output would now be "test-1" instead of</span>
+    <span class="c"># "test-1.input".</span>
+    <span class="nv">test_output</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">test</span><span class="p">%.input</span><span class="k">}</span><span class="s2">"</span>
+
+    <span class="c"># Do other things...</span>
+<span class="k">done</span></code></pre></figure>
+
+<aside class="aside-info"><p>
+
+I admit, I just looked up how to remove the end of a string in
+<code>bash</code>. <a href="http://tldp.org/LDP/abs/html/string-manipulation.html">Here's the
+documentation I looked at</a>; the examples are pretty good if you want to
+experiment on your own.
+
+</p></aside>
+
+<p>Now we just need to tack on the <code class="language-plaintext highlighter-rouge">.output</code> extension:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do</span>
+    <span class="c"># Now 'test_output' contains "test-1.output".</span>
+    <span class="nv">test_output</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">test</span><span class="p">%.input</span><span class="k">}</span><span class="s2">.output"</span>
+
+    <span class="c"># Do other things...</span>
+<span class="k">done</span></code></pre></figure>
+
+<h2 id="actually-doing-the-comparison">Actually doing the comparison</h2>
+
+<p>First, we want to run our program and see its output:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do
+    </span><span class="nv">test_output</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">test</span><span class="p">%.input</span><span class="k">}</span><span class="s2">.output"</span>
+
+    ./adder &lt;<span class="s2">"</span><span class="nv">$test</span><span class="s2">"</span>
+<span class="k">done</span></code></pre></figure>
+
+<aside class="aside-info"><p>
+
+You may notice that we've put <code>$test</code> into quotes. If
+<code>$test</code>, for example, contained spaces, <code>bash</code> might think
+that they're additional command line parameters or something else silly. For
+robustness and security, you should always quote variables when using them in
+<code>bash</code>.
+
+</p></aside>
+
+<p>We’re using the input redirection operator <code class="language-plaintext highlighter-rouge">&lt;</code> here to feed the contents of the
+input test file to our <code class="language-plaintext highlighter-rouge">adder</code> program. But as it is, this just prints the
+result to the screen. We want to feed it to the <code class="language-plaintext highlighter-rouge">diff</code> program, along with the
+correct output, to tell us if the files were identical.</p>
+
+<p>To hook together our program and <code class="language-plaintext highlighter-rouge">diff</code>, we can use a <em>pipeline</em>. This will
+redirect the standard output of <code class="language-plaintext highlighter-rouge">adder</code> to the standard input of <code class="language-plaintext highlighter-rouge">diff</code>. To use
+a pipeline for <code class="language-plaintext highlighter-rouge">cmd1</code> and <code class="language-plaintext highlighter-rouge">cmd2</code>, we join the two with the <code class="language-plaintext highlighter-rouge">|</code> operator to get
+<code class="language-plaintext highlighter-rouge">cmd1 | cmd2</code>:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do
+    </span><span class="nv">test_output</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">test</span><span class="p">%.input</span><span class="k">}</span><span class="s2">.output"</span>
+
+    <span class="c"># 'adder' will feed its output directly into 'diff'.</span>
+    ./adder &lt;<span class="s2">"</span><span class="nv">$test</span><span class="s2">"</span> | diff - <span class="s2">"</span><span class="nv">$test_output</span><span class="s2">"</span>
+<span class="k">done</span></code></pre></figure>
+
+<p>You’ll notice that we have the file <code class="language-plaintext highlighter-rouge">-</code> as one of the parameters to diff. This
+is special code meaning “use standard input for this file”. The other file is
+the correct output file.</p>
+
+<h2 id="checking-to-see-if-the-test-passed">Checking to see if the test passed</h2>
+
+<p>Finally, we just need to check the return value of <code class="language-plaintext highlighter-rouge">diff</code> to see if the files
+were identical. We can use <code>bash</code>’s <code class="language-plaintext highlighter-rouge">if</code>-statement to determine if a
+command succeeded or not. If the command has an exit code of zero, the <code class="language-plaintext highlighter-rouge">if</code>
+statement considers it a success and goes into the <code class="language-plaintext highlighter-rouge">if</code>-branch; otherwise, it
+goes into the <code class="language-plaintext highlighter-rouge">else</code>-branch (if there is one).</p>
+
+<aside class="aside-info"><p>
+
+You'll notice that this is the opposite of what we usually expect from boolean
+logic. Normally, a value of zero means <code>false</code>, but here zero means
+success.
+
+Why use zero for success and non-zero for failure? It's more convenient for us
+scripters. There's usually only one way a program can successfully run, but many
+ways it can fail. If we want to know why exactly a program failed, we can just
+check the exit code.
+
+</p></aside>
+
+<p>We’ll just move the command into the condition of an <code class="language-plaintext highlighter-rouge">if</code> statement:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="k">for </span><span class="nb">test </span><span class="k">in</span> ./test-<span class="k">*</span>.input<span class="p">;</span> <span class="k">do
+    </span><span class="nv">test_output</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">test</span><span class="p">%.input</span><span class="k">}</span><span class="s2">.output"</span>
+
+    <span class="k">if</span> ./adder &lt;<span class="s2">"</span><span class="nv">$test</span><span class="s2">"</span> | diff - <span class="s2">"</span><span class="nv">$test_output</span><span class="s2">"</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">echo</span> <span class="s2">"Test </span><span class="nv">$test</span><span class="s2"> passed!"</span>
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"Test </span><span class="nv">$test</span><span class="s2"> failed..."</span>
+        <span class="nb">exit </span>1
+    <span class="k">fi
+done</span></code></pre></figure>
+
+<p>That’s it! We have our automated test runner in ten lines of code. If we run
+<code class="language-plaintext highlighter-rouge">bash run_tests.sh</code> now, it will automatically run all of the tests in the
+current directory. If any of them fail, then the test runner will <code class="language-plaintext highlighter-rouge">exit 1</code>.</p>
+
+<h2 id="adding-automatic-test-running-to-our-makefile">Adding automatic test-running to our Makefile</h2>
+
+<p>Now that we’ve written our test runner, we can do a few nifty things with it.
+First off, let’s make it so that if we run <code class="language-plaintext highlighter-rouge">make test</code>, our tests will be run.
+Add these lines to your <code class="language-plaintext highlighter-rouge">Makefile</code>:</p>
+
+<figure class="highlight"><pre><code class="language-make" data-lang="make"><span class="nl">test</span><span class="o">:</span> <span class="nf">all</span>
+	bash run_tests.sh</code></pre></figure>
+
+<aside class="aside-warning"><p>
+
+Remember that in a `Makefile`, you must use tabs for indentation. Otherwise
+`make` will fail and give you a cryptic error.
+
+</p></aside>
+
+<p>Now if we run <code class="language-plaintext highlighter-rouge">make test</code>, we’ll either get output like this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>make <span class="nb">test
+</span>bash run_tests.sh
+Test ./test-1.input passed!</code></pre></figure>
+
+<p>Or, if we’re unlucky, this:</p>
+
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>make <span class="nb">test
+</span>bash run_tests.sh
+1c1
+&lt; 9
+<span class="nt">---</span>
+<span class="o">&gt;</span> 10
+Test ./test-1.input failed...
+make: <span class="k">***</span> <span class="o">[</span><span class="nb">test</span><span class="o">]</span> Error 1</code></pre></figure>
+
+<h2 id="preventing-submission-if-our-tests-failed">Preventing submission if our tests failed</h2>
+
+<p>Since we’ve added the <code class="language-plaintext highlighter-rouge">test</code> target to our <code class="language-plaintext highlighter-rouge">Makefile</code>, we can also make it so
+that <code class="language-plaintext highlighter-rouge">make</code> will refuse to make <code class="language-plaintext highlighter-rouge">submit.tar.gz</code> if your tests failed to pass.
+(This can save you quite a few submits down the road if you’re lazy and don’t
+want to test every single thing by hand.) Just modify the <code class="language-plaintext highlighter-rouge">submit</code> target from
+this:</p>
+
+<figure class="highlight"><pre><code class="language-make" data-lang="make"><span class="nl">submit</span><span class="o">:</span> <span class="nf">submit.tar.gz</span></code></pre></figure>
+
+<p>to this:</p>
+
+<figure class="highlight"><pre><code class="language-make" data-lang="make"><span class="nl">submit</span><span class="o">:</span> <span class="nf">test submit.tar.gz</span></code></pre></figure>
+
+<p>Now if you try to run <code class="language-plaintext highlighter-rouge">make submit</code> and your tests fail, <code class="language-plaintext highlighter-rouge">make</code> will refuse to
+build your submission file and let you know.</p>
+
+<h2 id="if-you-get-stuck">If you get stuck…</h2>
+
+<p>Shell scripting can have some really hard-to-diagnose errors, especially if
+you’re not experienced in it. If you get stuck, make a new post on Piazza, or
+just email me!</p>
+
+<p>If you’re writing a significantly-sized shell script and are having trouble with
+it, consider enabling the so-called <a href="http://redsymbol.net/articles/unofficial-bash-strict-mode/">bash strict
+mode</a>. This might cause your error to trigger earlier so you can figure out
+what went wrong.</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">How to Survive EECS 281</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Waleed Khan</li>
+          <li><a href="mailto:wkhan@umich.edu">wkhan@umich.edu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
+</p>
+
+        
+          <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
+        
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
