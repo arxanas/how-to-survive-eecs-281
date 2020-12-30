@@ -9,8 +9,8 @@
   <title>Terminal Tips and Tricks</title>
   <meta name="description" content="You probably spend a lot of time on CAEN, or SSHed into CAEN, or working on aterminal on your local machine. It’s probably worth learning a few keyboardshort...">
 
-  <link rel="stylesheet" href="/281/css/main.css">
-  <link rel="canonical" href="http://waleedkhan.name/281/terminal-tips-and-tricks/">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="https://eecs281.waleedkhan.name/terminal-tips-and-tricks/">
 
   <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -31,7 +31,7 @@
 
   <div class="wrapper">
 
-    <a class="site-title" href="/281/">How to Survive EECS 281</a>
+    <a class="site-title" href="/">How to Survive EECS 281</a>
 
     <nav class="site-nav">
       <div class="trigger">
@@ -266,7 +266,7 @@ shells.
 <h2 id="showing-file-differences">Showing file differences</h2>
 
 <p>If you want to run tests and show differences automatically, take a look at
-<a href="/281/281/painless-automated-testing/">Painless Automated Testing</a>.</p>
+<a href="/painless-automated-testing/">Painless Automated Testing</a>.</p>
 
 <p>The <code class="language-plaintext highlighter-rouge">diff</code> command takes two files and tells you how they’re different. For
 example:</p>
@@ -289,7 +289,7 @@ side-by-side diff:</p>
 quit, you need to type <code class="language-plaintext highlighter-rouge">:qall</code>. You can also use any other Vim keybindings you
 know, since this is actually Vim.</p>
 
-<p><a href="/281/assets/posts/terminal-tips-and-tricks/vimdiff.png"><img src="/281/assets/posts/terminal-tips-and-tricks/vimdiff.png" alt="Highlighting differences in vim." title="Highlighting differences in vim." /></a></p>
+<p><a href="/assets/posts/terminal-tips-and-tricks/vimdiff.png"><img src="/assets/posts/terminal-tips-and-tricks/vimdiff.png" alt="Highlighting differences in vim." title="Highlighting differences in vim." /></a></p>
 
 <h2 id="multiple-terminals-at-once">Multiple terminals at once</h2>
 
@@ -305,7 +305,7 @@ mostly better.</p>
 <p>Launch <code class="language-plaintext highlighter-rouge">tmux</code> in your terminal on CAEN. You should get a new, blank screen,
 except with a status line at the bottom. (It’ll say something like <code class="language-plaintext highlighter-rouge">0:bash</code>.)</p>
 
-<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-new-screen.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-new-screen.png" alt="A new tmux session." title="A new tmux session." /></a></p>
+<p><a href="/assets/posts/terminal-tips-and-tricks/tmux-new-screen.png"><img src="/assets/posts/terminal-tips-and-tricks/tmux-new-screen.png" alt="A new tmux session." title="A new tmux session." /></a></p>
 
 <p>Run a simple command, like <code class="language-plaintext highlighter-rouge">echo hi</code>, and see that it works the same as your
 regular terminal.</p>
@@ -319,7 +319,7 @@ Press <kbd>q</kbd> to exit that screen.</p>
 terminal window, which you can run different commands in. You can see all the
 open windows in the statusline at the bottom.</p>
 
-<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-new-window.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-new-window.png" alt="Two tmux windows are open at once." title="Two tmux windows are open at once." /></a></p>
+<p><a href="/assets/posts/terminal-tips-and-tricks/tmux-new-window.png"><img src="/assets/posts/terminal-tips-and-tricks/tmux-new-window.png" alt="Two tmux windows are open at once." title="Two tmux windows are open at once." /></a></p>
 
 <p><strong>Switching windows</strong>: Use <kbd>Ctrl-b n</kbd> and <kbd>Ctrl-b p</kbd> (for
 <em>next</em> and <em>previous</em>). You can jump directly to a window with <kbd>Ctrl-b</kbd>
@@ -345,7 +345,7 @@ through old output with <kbd>Ctrl-b /</kbd> and backwards with <kbd>Ctrl-b
 ?</kbd>. This can be convenient if you forgot to <a href="#viewing-files">pipe your output into a pager
 or a file</a>.</p>
 
-<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-scroll-up.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-scroll-up.png" alt="Scroll through old output." title="Scroll through old output." /></a></p>
+<p><a href="/assets/posts/terminal-tips-and-tricks/tmux-scroll-up.png"><img src="/assets/posts/terminal-tips-and-tricks/tmux-scroll-up.png" alt="Scroll through old output." title="Scroll through old output." /></a></p>
 
 <h3 id="using-panes">Using panes</h3>
 
@@ -354,7 +354,7 @@ Type <kbd>Ctrl-b "</kbd> to split the current window into an upper and lower
 pane. Type <kbd>Ctrl-b %</kbd> to split the current window into a left and right
 pane.</p>
 
-<p><a href="/281/assets/posts/terminal-tips-and-tricks/tmux-multiple-panes.png"><img src="/281/assets/posts/terminal-tips-and-tricks/tmux-multiple-panes.png" alt="Multiple tmux panes open at once." title="Multiple tmux panes open at once." /></a></p>
+<p><a href="/assets/posts/terminal-tips-and-tricks/tmux-multiple-panes.png"><img src="/assets/posts/terminal-tips-and-tricks/tmux-multiple-panes.png" alt="Multiple tmux panes open at once." title="Multiple tmux panes open at once." /></a></p>
 
 <p>To switch between panes, use <kbd>Ctrl-b</kbd> followed by an arrow key.</p>
 
@@ -406,8 +406,7 @@ although I wouldn’t recommend that you copy it verbatim:
       </div>
 
       <div class="footer-col  footer-col-3">
-        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.
-</p>
+        <p class="text">Tips and tricks for surviving EECS 281 at the University of Michigan.</p>
 
         
           <p class="text">Typos? Suggestions? <a href="https://github.com/arxanas/how-to-survive-eecs-281">Contribute.</a></p>
